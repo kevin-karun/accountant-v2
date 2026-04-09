@@ -9,6 +9,10 @@ React Native (Expo)
   - app/screens/ - Screen components
   - app/navigation/ - Navigation setup
   - app/database/ - SQLite database layer
+    - index.ts - DatabaseService singleton
+    - schema.ts - SQL table definitions
+    - types.ts - TypeScript interfaces
+    - accountsService.ts - Accounts CRUD operations
 - Local Database (SQLite - implemented)
 - No backend (V1)
 

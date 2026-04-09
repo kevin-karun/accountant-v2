@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 9, 2026  
-**Current Checkpoint:** 2.1 (Post-SQLite Implementation)
+**Current Checkpoint:** 3.1 (Post-Accounts CRUD Implementation)
 
 ## Completed Checkpoints
 
@@ -37,10 +37,21 @@
 - Database initialization on app startup
 - TypeScript types defined for entities
 
-## Current Architecture Summary
-
-```
-app/
+### Checkpoint 3: Accounts CRUD Foundation
+- Accounts service layer created (`app/database/accountsService.ts`)
+- Create account operation with form validation
+- List accounts operation with real-time display
+- Categories screen converted to Accounts management screen
+- Account form includes: name, type (dropdown), opening balance
+- Accounts display as list with name, type, balance
+- All operations persist to SQLite
+- Error handlingscreens: Dashboard, Transactions, Add Transaction, Accounts, Settings)
+├── navigation/ (BottomTabNavigator with icons)
+└── database/ (SQLite layer)
+    ├── index.ts (DatabaseService singleton)
+    ├── schema.ts (table creation SQL)
+    ├── types.ts (TypeScript interfaces)
+    └── accountsService.ts (create/list operation
 ├── App.tsx (main entry, DB initialization hook)
 ├── index.ts
 ├── app.json
@@ -113,11 +124,12 @@ Accountant-V2/
 ## Status Summary
 
 ✅ **App Shell:** Functional  
-✅ **Database Layer:** Functional  
-⏳ **CRUD Operations:** Not yet implemented  
+✅ **Accounts CRUD (Create/Read):** Functional  
+⏳ **Accounts CRUD (Update/Delete):** Not yet implemented  
+⏳ **Transactions CRUDOperations:** Not yet implemented  
 ⏳ **Forms:** Not yet implemented  
 ⏳ **Business Logic:** Not yet implemented
 
----
+---4 (Accounts CRUD Completion - Edit/Delete
 
 **Ready for:** Checkpoint 3 (Accounts CRUD Foundation)

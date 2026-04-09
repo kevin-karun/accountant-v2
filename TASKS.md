@@ -17,12 +17,14 @@
 - Create transactions table
 - Database initialization on startup
 
-## Checkpoint 3 — Accounts CRUD Foundation
+## Checkpoint 3 — Accounts CRUD Foundation ✅
 
-- Account creation form
-- Account list view
-- Account editing
-- Account deletion
+- ✅ Account creation form
+- ✅ Account list view
+- ✅ Create operation (insert to SQLite)
+- ✅ Read operation (list from SQLite)
+- ⏳ Account editing (Checkpoint 4)
+- ⏳ Account deletion (Checkpoint 4)
 
 ## Future
 
