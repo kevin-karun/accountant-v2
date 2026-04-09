@@ -1,5 +1,13 @@
 # Changelog
 
+## Checkpoint 2 - SQLite Database Foundation
+
+- Added Expo SQLite database setup
+- Created accounts and transactions tables with proper schema
+- Implemented database initialization on app startup
+- Added TypeScript types for database entities
+- Set up clean database module structure
+
 ## Starting Line
 
 - Project initialized

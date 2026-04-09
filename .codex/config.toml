@@ -1,0 +1,81 @@
+# Codex Configuration for Accountant V2
+# Minimal, conservative setup for safe agent operations
+
+[project]
+name = "Accountant V2"
+description = "Single-user offline-first React Native finance app"
+root_path = "."
+type = "react-native-expo"
+
+[safety]
+# Conservative file modification scope
+allow_create = true
+allow_modify = true
+allow_delete = false  # Never auto-delete files
+
+# Protected paths (never modify)
+protected_paths = [
+  ".git/**",
+  "node_modules/**",
+  ".expo/**",
+  "*.lock",
+  "package.json",  # Manual review for dependency changes
+  "*.json"  # Config files require caution
+]
+
+# Safe paths for creation/modification
+safe_paths = [
+  "app/**/*.tsx",
+  "app/**/*.ts",
+  "docs/**/*.md",
+  "CHANGELOG.md",
+  "TASKS.md",
+  "DECISIONS.md"
+]
+
+[eslint]
+# Use conservative linting
+enabled = true
+strict = false  # Warnings only, not blocking
+
+[typescript]
+# Enforce TypeScript strict mode
+enabled = true
+strict = true
+
+[dependencies]
+# Only allow Expo-ecosystem packages
+approved_registries = ["npm"]
+approved_scopes = [
+  "@expo/**",
+  "@react-navigation/**",
+  "react",
+  "react-native"
+]
+
+# Deny external/risky packages
+denied_patterns = [
+  "*firebase*",
+  "*backend*",
+  "*sync*",
+  "*api*",
+  "*graphql*"
+]
+
+[limits]
+# Sandbox restrictions
+max_simultaneous_changes = 3  # Process one checkpoint at a time
+request_approval_for = [
+  "dependency_changes",
+  "architecture_changes",
+  "file_deletions",
+  "major_refactors"
+]
+
+[output]
+# Always require these reports
+require_outputs = [
+  "files_changed",
+  "packages_installed",
+  "run_instructions"
+]

@@ -6,12 +6,15 @@ React Native (Expo)
 ## Structure
 
 - Mobile App (Frontend)
-- Local Database (SQLite - planned)
+  - app/screens/ - Screen components
+  - app/navigation/ - Navigation setup
+  - app/database/ - SQLite database layer
+- Local Database (SQLite - implemented)
 - No backend (V1)
 
 ## Flow
 
-User → App UI → Local Storage → Calculations → UI
+User → App UI → Local SQLite Database → Calculations → UI
 
 ## Design Principles
 
