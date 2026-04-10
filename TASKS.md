@@ -26,6 +26,8 @@
 - ✅ Fix Picker import error from react-native
 - ✅ Testing foundation (Checkpoint 3.0.1)
 - ✅ Testing cleanup (Checkpoint 3.0.2)
+- ✅ Accounts flow cleanup and hardening (Checkpoint 3.1)
+- ✅ Accounts screen scrolling fix (Checkpoint 3.1.1)
 - ⏳ Account editing (Checkpoint 4)
 - ⏳ Account deletion (Checkpoint 4)
 

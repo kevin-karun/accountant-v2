@@ -1,5 +1,24 @@
 # Changelog
 
+## Checkpoint 3.1.1 - Accounts Screen Scrolling Fix
+
+- Fixed scrolling regression introduced in Checkpoint 3.1
+- Replaced View container with ScrollView for full screen vertical scrolling
+- Removed flex: 1 from container and listSection styles
+- Added contentContainerStyle for proper padding
+- Preserved all existing functionality and UI cleanup
+- Tests still passing (9/9)
+
+## Checkpoint 3.1 - Accounts Flow Cleanup and Hardening
+
+- Renamed Categories tab to Accounts in bottom navigation
+- Renamed CategoriesScreen.tsx to AccountsScreen.tsx and updated component name
+- Updated navigation imports and references
+- Added "Create New Account" section header for clearer form organization
+- Reduced spacing between UI sections for tighter layout
+- Preserved all existing functionality and behavior
+- Tests still passing (9/9)
+
 ## Checkpoint 3.0.2 - Testing Cleanup
 
 - Cleaned up package.json: moved jest-expo from dependencies to devDependencies only

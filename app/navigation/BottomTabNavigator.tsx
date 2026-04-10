@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
-import CategoriesScreen from '../screens/CategoriesScreen';
+import AccountsScreen from '../screens/AccountsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -24,7 +24,7 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'list' : 'list-outline';
           } else if (route.name === 'Add Transaction') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
-          } else if (route.name === 'Categories') {
+          } else if (route.name === 'Accounts') {
             iconName = focused ? 'folder' : 'folder-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
@@ -61,7 +61,7 @@ export default function BottomTabNavigator() {
           ),
         }}
       />
-      <Tab.Screen name="Categories" component={CategoriesScreen} />
+      <Tab.Screen name="Accounts" component={AccountsScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );

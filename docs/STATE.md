@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 9, 2026  
-**Current Checkpoint:** 3.0.2 (Post-Testing Cleanup)
+**Current Checkpoint:** 3.1.1 (Accounts Screen Scrolling Fix)
 
 ## Completed Checkpoints
 
@@ -45,7 +45,20 @@
 - Account form includes: name, type (dropdown), opening balance
 - Accounts display as list with name, type, balance
 - All operations persist to SQLite
-- Error handlingscreens: Dashboard, Transactions, Add Transaction, Accounts, Settings)
+- Error handling and loading states implemented
+- Testing foundation established with Jest/jest-expo
+- Testing cleanup completed (9/9 tests passing)
+- **Checkpoint 3.1:** Accounts flow cleanup and hardening
+  - Renamed Categories tab to Accounts
+  - Renamed CategoriesScreen.tsx to AccountsScreen.tsx
+  - Added section headers for clearer form organization
+  - Reduced spacing for tighter layout
+  - Preserved all functionality
+- **Checkpoint 3.1.1:** Accounts screen scrolling fix
+  - Fixed scrolling regression from layout changes
+  - Replaced View container with ScrollView
+  - Removed flex layout constraints
+  - Full screen now scrolls vertically on iOS
 ├── navigation/ (BottomTabNavigator with icons)
 └── database/ (SQLite layer)
     ├── index.ts (DatabaseService singleton)

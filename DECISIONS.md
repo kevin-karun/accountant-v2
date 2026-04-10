@@ -15,6 +15,13 @@
 - Screen components use React hooks (useState, useEffect, useCallback) for state
 - No external state management library used for V1
 
+## UI/UX
+
+- Accounts screen renamed from Categories for consistency
+- Minimalist design with clean spacing and clear section headers
+- Form sections use white backgrounds with subtle shadows for visual separation
+- Bottom navigation uses consistent iconography (Ionicons)
+
 ## Testing
 
 - Jest used with jest-expo preset for Expo SDK 54 compatibility

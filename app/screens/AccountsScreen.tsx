@@ -8,12 +8,13 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { createAccount, getAllAccounts } from '../database/accountsService';
 import { Account } from '../database/types';
 
-export default function CategoriesScreen() {
+export default function AccountsScreen() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [name, setName] = useState('');
   const [type, setType] = useState<'bank' | 'credit_card' | 'cash' | 'other'>('bank');
@@ -70,11 +71,12 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>Accounts</Text>
 
       {/* Form Section */}
       <View style={styles.formSection}>
+        <Text style={styles.sectionTitle}>Create New Account</Text>
         <TextInput
           style={styles.input}
           placeholder="Account name"
@@ -133,31 +135,38 @@ export default function CategoriesScreen() {
           />
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
     padding: 16,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   formSection: {
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
-    marginBottom: 20,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
   },
   input: {
     borderWidth: 1,
@@ -190,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   listSection: {
-    flex: 1,
+    marginTop: 8,
   },
   listTitle: {
     fontSize: 18,
