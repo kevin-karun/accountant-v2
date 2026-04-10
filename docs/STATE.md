@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 9, 2026  
-**Current Checkpoint:** 3.0.1 (Post-Testing Foundation Setup)
+**Current Checkpoint:** 3.0.2 (Post-Testing Cleanup)
 
 ## Completed Checkpoints
 
@@ -132,4 +132,11 @@ Accountant-V2/
 
 ---4 (Accounts CRUD Completion - Edit/Delete
 
-**Ready for:** Checkpoint 3 (Accounts CRUD Foundation)
+**Ready for:** Checkpoint 4 (Accounts CRUD Completion - Edit/Delete)
+
+**Testing Status:**
+- Jest configured and working with jest-expo preset
+- 2 test suites with 9 test cases (all passing)
+- Tests validate: Account ID format/uniqueness, module imports, schema constants, type structures
+- Package.json cleaned: jest-expo moved to devDependencies only
+- Ready for adding more test cases as features are implemented

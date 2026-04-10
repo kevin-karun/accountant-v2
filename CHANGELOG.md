@@ -1,5 +1,15 @@
 # Changelog
 
+## Checkpoint 3.0.2 - Testing Cleanup
+
+- Cleaned up package.json: moved jest-expo from dependencies to devDependencies only
+- Improved App.test.ts with meaningful tests for database schema and types
+- Added tests for SQL table creation statements validation
+- Added tests for database type structure validation
+- Tests now cover: module imports (2), schema constants (2), type validation (3)
+- All tests passing (9/9)
+- Testing foundation stabilized and more robust
+
 ## Checkpoint 3.0.1 - Automated Testing Foundation
 
 - Set up Jest using jest-expo preset (Expo SDK 54 compatible)

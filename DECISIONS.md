@@ -21,7 +21,8 @@
 - Tests placed in `__tests__/` directory with `.test.ts` suffix
 - Tests focus on simple logic and module availability (no complex component rendering yet)
 - No @testing-library/react-native due to React 19.1.0 compatibility conflicts
-- Test coverage prioritizes database service logic and app initialization paths
+- Test coverage prioritizes database service logic, schema validation, and app initialization paths
+- jest-expo kept only in devDependencies (not runtime dependencies)
 
 ## Starting Line
 
