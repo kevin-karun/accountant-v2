@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 9, 2026  
-**Current Checkpoint:** 3.1 (Post-Accounts CRUD Implementation)
+**Current Checkpoint:** 3.0.1 (Post-Testing Foundation Setup)
 
 ## Completed Checkpoints
 
