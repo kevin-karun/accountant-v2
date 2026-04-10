@@ -1,5 +1,16 @@
 # Changelog
 
+## Checkpoint 3.2 - Local Automated Validation Pipeline
+
+- Added npm run typecheck script using tsc --noEmit
+- Added npm run verify script that runs typecheck and test in sequence
+- Preserved existing npm run test script
+- Local validation pipeline allows quick verification before commits
+- No external CI/CD or Git hooks required for local workflow
+- ESLint skipped for now (not installed, not blocking)
+- All tests passing (9/9)
+- TypeScript compilation clean with no errors
+
 ## Checkpoint 3.1.1 - Accounts Screen Scrolling Fix
 
 - Fixed scrolling regression introduced in Checkpoint 3.1

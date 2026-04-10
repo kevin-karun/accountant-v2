@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 9, 2026  
-**Current Checkpoint:** 3.1.1 (Accounts Screen Scrolling Fix)
+**Current Checkpoint:** 3.2 (Local Automated Validation Pipeline)
 
 ## Completed Checkpoints
 
@@ -59,6 +59,12 @@
   - Replaced View container with ScrollView
   - Removed flex layout constraints
   - Full screen now scrolls vertically on iOS
+- **Checkpoint 3.2:** Local automated validation pipeline
+  - Added npm run typecheck script (TypeScript validation)
+  - Added npm run verify script (runs typecheck + test)
+  - Preserved npm run test script
+  - Local-first validation approach
+  - No CI/CD or Git hooks required yet
 ├── navigation/ (BottomTabNavigator with icons)
 └── database/ (SQLite layer)
     ├── index.ts (DatabaseService singleton)

@@ -15,6 +15,15 @@
 - Screen components use React hooks (useState, useEffect, useCallback) for state
 - No external state management library used for V1
 
+## Build and Validation
+
+- Local validation pipeline with npm run verify for quick checks
+- Typecheck script uses tsc --noEmit (no file emission, pure validation)
+- Verify script runs typecheck then test in sequence
+- Early error detection before commits (local-first approach)
+- ESLint deferred to future checkpoints (not blocking for V1)
+- No Git hooks, CI/CD, or automation tooling required yet
+
 ## UI/UX
 
 - Accounts screen renamed from Categories for consistency

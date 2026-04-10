@@ -28,6 +28,7 @@
 - ✅ Testing cleanup (Checkpoint 3.0.2)
 - ✅ Accounts flow cleanup and hardening (Checkpoint 3.1)
 - ✅ Accounts screen scrolling fix (Checkpoint 3.1.1)
+- ✅ Local automated validation pipeline (Checkpoint 3.2)
 - ⏳ Account editing (Checkpoint 4)
 - ⏳ Account deletion (Checkpoint 4)
 
