@@ -93,9 +93,27 @@
 - Dashboard screen loads accounts and transactions directly from existing SQLite services
 - Current account balances are reused from `getAccountBalance()` so dashboard totals stay aligned with Accounts screen ledger logic
 - Latest dashboard transactions come from `getAllTransactions()` and are limited locally to the most recent 5
+- Dashboard derives a simple last-7-days net change directly from the loaded transactions in-screen, avoiding extra services
+- Dashboard accounts are previewed only as a short summary list (max 3) so the screen stays activity-first instead of duplicating the Accounts tab
+- Dashboard recent transactions are previewed as a short summary list (max 3) for the same reason
 - Dashboard refreshes with `useFocusEffect` so tab return reflects recent account and transaction changes without navigation changes
 - No dedicated dashboard service was added because the existing service layer already covered the required data cleanly
 - App navigation now waits for SQLite initialization before mounting the tab screens, preventing the initial Dashboard load from racing database startup
+
+## Transaction Row Hierarchy
+
+- Transaction rows prioritize the description as the primary line
+- If description is blank or whitespace, the row falls back to Income or Expense
+- Account name plus account type are shown together on the secondary line for better identity when names repeat
+- Date remains the tertiary line and the signed amount stays on the right with existing income/expense colors
+
+## Transaction Edit Flow
+
+- AddTransactionScreen now supports a local `mode` flag with `create` and `edit`
+- TransactionsScreen and DashboardScreen pass the full transaction object plus an origin screen when opening edit mode
+- AddTransactionScreen consumes the edit params once, pre-fills the form, and clears the params so the Add tab does not stay stuck in edit mode
+- Save uses `updateTransaction()` and delete uses the existing confirmation pattern with `deleteTransaction()`
+- After update or delete, navigation returns to the originating screen so the app can rely on existing `useFocusEffect` reloads for synchronization
 
 ## Testing
 

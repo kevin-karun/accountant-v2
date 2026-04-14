@@ -6,8 +6,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getAllAccounts, getAccountBalance } from '../database/accountsService';
 import { getAllTransactions } from '../database/transactionsService';
 import { Account, Transaction } from '../database/types';
@@ -18,8 +19,10 @@ type AccountSummary = {
 };
 
 export default function DashboardScreen() {
+  const navigation = useNavigation<any>();
   const [accountSummaries, setAccountSummaries] = useState<AccountSummary[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [weeklyNetChange, setWeeklyNetChange] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadDashboardData = useCallback(async () => {
@@ -40,8 +43,30 @@ export default function DashboardScreen() {
         balance: balances[index],
       }));
 
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const netChangeLast7Days = transactions.reduce((sum, transaction) => {
+        const transactionDate = new Date(transaction.date);
+
+        if (transactionDate < sevenDaysAgo) {
+          return sum;
+        }
+
+        if (transaction.type === 'income') {
+          return sum + transaction.amount;
+        }
+
+        if (transaction.type === 'expense') {
+          return sum - transaction.amount;
+        }
+
+        return sum;
+      }, 0);
+
       setAccountSummaries(summaries);
-      setRecentTransactions(transactions.slice(0, 5));
+      setRecentTransactions(transactions.slice(0, 3));
+      setWeeklyNetChange(transactions.length > 0 ? netChangeLast7Days : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
       Alert.alert('Error', 'Failed to load dashboard');
@@ -64,17 +89,35 @@ export default function DashboardScreen() {
     (sum, summary) => sum + summary.balance,
     0
   );
+  const accountPreview = accountSummaries.slice(0, 3);
 
-  const getAccountName = (accountId: string) => {
+  const getAccountLabel = (accountId: string) => {
     const matchingAccount = accountSummaries.find(
       summary => summary.account.id === accountId
     );
 
-    return matchingAccount ? matchingAccount.account.name : 'Unknown Account';
+    if (!matchingAccount) {
+      return 'Unknown Account';
+    }
+
+    return `${matchingAccount.account.name} · ${matchingAccount.account.type.replace('_', ' ')}`;
+  };
+
+  const getTransactionTitle = (transaction: Transaction) => {
+    const trimmedDescription = transaction.description?.trim();
+    if (trimmedDescription) {
+      return trimmedDescription;
+    }
+
+    return transaction.type === 'income' ? 'Income' : 'Expense';
   };
 
   const formatCurrency = (amount: number) => {
     return `${amount < 0 ? '-' : ''}$${Math.abs(amount).toFixed(2)}`;
+  };
+
+  const formatSignedCurrency = (amount: number) => {
+    return `${amount >= 0 ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
   };
 
   if (loading) {
@@ -97,6 +140,64 @@ export default function DashboardScreen() {
       <View style={styles.card}>
         <Text style={styles.cardLabel}>Total Balance</Text>
         <Text style={styles.totalBalance}>{formatCurrency(totalBalance)}</Text>
+        {weeklyNetChange !== null ? (
+          <Text
+            style={[
+              styles.netChangeText,
+              weeklyNetChange >= 0 ? styles.income : styles.expense,
+            ]}
+          >
+            {formatSignedCurrency(weeklyNetChange)} (last 7 days)
+          </Text>
+        ) : null}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+        {recentTransactions.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No transactions yet</Text>
+            <Text style={styles.emptyText}>
+              {accountSummaries.length === 0
+                ? 'Create an account first, then add a transaction to see activity here.'
+                : 'Add a transaction to start seeing recent activity here.'}
+            </Text>
+          </View>
+        ) : (
+          recentTransactions.map((transaction) => (
+            <TouchableOpacity
+              key={transaction.id}
+              style={styles.listItem}
+              onPress={() =>
+                navigation.navigate('Add Transaction', {
+                  mode: 'edit',
+                  transaction,
+                  returnTo: 'Dashboard',
+                })
+              }
+            >
+              <View style={styles.listItemHeader}>
+                <Text style={styles.itemTitle}>
+                  {getTransactionTitle(transaction)}
+                </Text>
+                <Text
+                  style={[
+                    styles.itemAmount,
+                    transaction.type === 'income' ? styles.income : styles.expense,
+                  ]}
+                >
+                  {formatSignedCurrency(transaction.type === 'income' ? transaction.amount : -transaction.amount)}
+                </Text>
+              </View>
+              <Text style={styles.itemSubtitle}>
+                {getAccountLabel(transaction.account_id)}
+              </Text>
+              <Text style={styles.itemMeta}>
+                {new Date(transaction.date).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+          ))
+        )}
       </View>
 
       <View style={styles.section}>
@@ -109,54 +210,19 @@ export default function DashboardScreen() {
             </Text>
           </View>
         ) : (
-          accountSummaries.map(({ account, balance }) => (
-            <View key={account.id} style={styles.listItem}>
-              <View style={styles.listItemHeader}>
-                <Text style={styles.itemTitle}>{account.name}</Text>
-                <Text style={styles.itemAmount}>{formatCurrency(balance)}</Text>
+          <>
+            {accountPreview.map(({ account, balance }) => (
+              <View key={account.id} style={styles.listItem}>
+                <View style={styles.listItemHeader}>
+                  <Text style={styles.itemTitle}>
+                    {account.name} · {account.type.replace('_', ' ')}
+                  </Text>
+                  <Text style={styles.itemAmount}>{formatCurrency(balance)}</Text>
+                </View>
               </View>
-              <Text style={styles.itemSubtitle}>
-                {account.type.replace('_', ' ')}
-              </Text>
-            </View>
-          ))
-        )}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
-        {recentTransactions.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>No transactions yet</Text>
-            <Text style={styles.emptyText}>
-              Add a transaction to start seeing recent activity here.
-            </Text>
-          </View>
-        ) : (
-          recentTransactions.map((transaction) => (
-            <View key={transaction.id} style={styles.listItem}>
-              <View style={styles.listItemHeader}>
-                <Text style={styles.itemTitle}>
-                  {getAccountName(transaction.account_id)}
-                </Text>
-                <Text
-                  style={[
-                    styles.itemAmount,
-                    transaction.type === 'income' ? styles.income : styles.expense,
-                  ]}
-                >
-                  {transaction.type === 'income' ? '+' : '-'}$
-                  {transaction.amount.toFixed(2)}
-                </Text>
-              </View>
-              <Text style={styles.itemSubtitle}>
-                {transaction.description || 'No description'}
-              </Text>
-              <Text style={styles.itemMeta}>
-                {new Date(transaction.date).toLocaleDateString()}
-              </Text>
-            </View>
-          ))
+            ))}
+            <Text style={styles.helperText}>View all accounts in the Accounts tab</Text>
+          </>
         )}
       </View>
     </ScrollView>
@@ -208,6 +274,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  netChangeText: {
+    fontSize: 14,
+    marginTop: 6,
+    fontWeight: '500',
+  },
   section: {
     marginBottom: 18,
   },
@@ -241,9 +312,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   itemSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
-    textTransform: 'capitalize',
     marginBottom: 4,
   },
   itemMeta: {
@@ -254,6 +324,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
+  },
+  helperText: {
+    fontSize: 13,
+    color: '#777',
+    marginTop: 2,
+    marginLeft: 2,
   },
   income: {
     color: '#28a745',

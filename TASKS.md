@@ -130,6 +130,39 @@
 - ✅ Kept fix low-risk and local without new packages
 - ✅ npm run verify passes
 
+## Checkpoint 6.1 — Dashboard Meaningful Data Refinement ✅
+
+- ✅ Added last-7-days net change context under Total Balance
+- ✅ Kept income and expense amounts visually distinct in Recent Transactions
+- ✅ Improved Dashboard empty-state guidance based on whether accounts exist
+- ✅ Reused existing Dashboard loading logic and services without restructuring
+- ✅ npm run verify passes
+
+## Checkpoint 6.2 — Dashboard Summary Hierarchy ✅
+
+- ✅ Moved Recent Transactions above Accounts on the Dashboard
+- ✅ Limited Accounts preview to 3 items with balances still visible
+- ✅ Added helper text pointing users to the Accounts tab for the full list
+- ✅ Made account rows easier to scan by showing name and type together
+- ✅ npm run verify passes
+
+## Checkpoint 6.3 — Dashboard Preview Density & Transaction Row Clarity ✅
+
+- ✅ Reduced Dashboard recent transactions preview to 3 items
+- ✅ Kept Dashboard accounts preview at 3 items
+- ✅ Updated transaction rows on Dashboard and Transactions screens to prioritize description, then account name plus type, then date
+- ✅ Preserved signed, color-coded amount formatting
+- ✅ npm run verify passes
+
+## Checkpoint 7.0 — Transactions Edit/Delete Completion ✅
+
+- ✅ Added explicit create/edit transaction mode using AddTransactionScreen
+- ✅ Enabled tapping transactions from Transactions and Dashboard to open edit mode with pre-filled fields
+- ✅ Added transaction update service and reused transaction delete service in edit mode
+- ✅ Added Save Changes and Delete Transaction controls in edit mode
+- ✅ Preserved Dashboard and Transactions refresh via existing focus-based reload pattern
+- ✅ npm run verify passes
+
 ## Future
 
 - Transaction logic

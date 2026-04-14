@@ -54,6 +54,35 @@ export async function getTransactionsByAccount(accountId: string): Promise<Trans
   return (result || []) as Transaction[];
 }
 
+export async function updateTransaction(
+  transactionId: string,
+  updatedData: {
+    account_id: string;
+    type: 'income' | 'expense';
+    amount: number;
+    description: string;
+    date: string;
+  }
+): Promise<void> {
+  const db = databaseService.getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `UPDATE transactions
+     SET account_id = ?, type = ?, amount = ?, description = ?, date = ?, updated_at = ?
+     WHERE id = ?`,
+    [
+      updatedData.account_id,
+      updatedData.type,
+      updatedData.amount,
+      updatedData.description,
+      updatedData.date,
+      now,
+      transactionId,
+    ]
+  );
+}
+
 export async function deleteTransaction(transactionId: string): Promise<void> {
   const db = databaseService.getDatabase();
   await db.runAsync('DELETE FROM transactions WHERE id = ?', [transactionId]);

@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 14, 2026  
-**Current Checkpoint:** 6.1 (Dashboard Runtime Load Error Fix)
+**Current Checkpoint:** 7.0 (Transactions Edit/Delete Completion)
 
 ## Completed Checkpoints
 
@@ -133,12 +133,41 @@
 - Added a simple fallback screen for true database initialization failures
 - npm run verify passes (9/9 tests)
 
+### Checkpoint 6.1: Dashboard Meaningful Data Refinement
+- Added net change for the last 7 days beneath Total Balance for faster context
+- Kept recent transaction amounts visually explicit with signed income and expense formatting
+- Improved empty-state guidance so Dashboard points users toward creating an account or adding a transaction as needed
+- Reused the existing Dashboard loading flow and preserved refresh-on-focus behavior
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 6.2: Dashboard Summary Hierarchy
+- Reordered Dashboard sections so Recent Transactions appears before Accounts
+- Limited the Accounts section to a 3-item preview with subtle helper text pointing to the Accounts tab
+- Tightened account labels by showing account name and type together for easier scanning
+- Preserved the existing dashboard load path, net-change summary, and latest-5 transaction behavior
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 6.3: Dashboard Preview Density & Transaction Row Clarity
+- Reduced Dashboard recent transactions preview from 5 items to 3 so activity summary stays compact
+- Kept Dashboard accounts preview at 3 items
+- Updated transaction rows on Dashboard and Transactions screens to show description first, account name plus type second, and date third
+- Added sensible fallback transaction titles for empty descriptions while keeping signed, color-coded amounts
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 7.0: Transactions Edit/Delete Completion
+- Add Transaction now supports explicit create and edit modes
+- Tapping a transaction from Transactions or Dashboard opens edit mode with all fields pre-filled
+- Edit mode supports saving changes and deleting the transaction with confirmation
+- After update or delete, the app returns to the originating screen so existing focus-based reloads refresh Transactions and Dashboard
+- Transaction create mode behavior, inline validation, and inline success feedback remain intact
+- npm run verify passes (9/9 tests)
+
 ## Current App Status
 - Accounts CRUD: complete with create, read, update, delete
-- Transaction foundation: create/list implemented
+- Transactions lifecycle: create, read, update, delete implemented
 - Transaction form UX: inline validation and inline success feedback are both in place
 - Add Transaction layout: tighter and less scroll-heavy, with success auto-scroll
-- Dashboard: implemented with total balance, account summaries, and recent transactions
+- Dashboard: implemented as a summary-first screen with total balance, 7-day net change, 3 recent transactions, and a 3-account preview
 - Dashboard startup: stable with database-ready gating before initial tab mount
 - Inline validation: stable in Accounts and Transactions forms, with progressive account error sequencing
 - Duplicate prevention: active for Accounts

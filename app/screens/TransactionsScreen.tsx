@@ -8,12 +8,13 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { getAllTransactions, deleteTransaction } from '../database/transactionsService';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { getAllTransactions } from '../database/transactionsService';
 import { getAllAccounts } from '../database/accountsService';
 import { Transaction, Account } from '../database/types';
 
 export default function TransactionsScreen() {
+  const navigation = useNavigation<any>();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,46 +46,47 @@ export default function TransactionsScreen() {
     }, [loadData])
   );
 
-  const getAccountName = (accountId: string) => {
+  const getAccountLabel = (accountId: string) => {
     const account = accounts.find(acc => acc.id === accountId);
-    return account ? account.name : 'Unknown Account';
+
+    if (!account) {
+      return 'Unknown Account';
+    }
+
+    return `${account.name} · ${account.type.replace('_', ' ')}`;
   };
 
-  const handleDeleteTransaction = async (transactionId: string) => {
-    Alert.alert(
-      'Delete Transaction',
-      'Are you sure you want to delete this transaction?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTransaction(transactionId);
-              loadData(); // Refresh the list
-            } catch (error) {
-              console.error('Failed to delete transaction:', error);
-              Alert.alert('Error', 'Failed to delete transaction');
-            }
-          },
-        },
-      ]
-    );
+  const getTransactionTitle = (transaction: Transaction) => {
+    const trimmedDescription = transaction.description?.trim();
+    if (trimmedDescription) {
+      return trimmedDescription;
+    }
+
+    return transaction.type === 'income' ? 'Income' : 'Expense';
+  };
+
+  const formatSignedCurrency = (amount: number) => {
+    return `${amount >= 0 ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
   };
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
     <TouchableOpacity
       style={styles.transactionItem}
-      onLongPress={() => handleDeleteTransaction(item.id)}
+      onPress={() =>
+        navigation.navigate('Add Transaction', {
+          mode: 'edit',
+          transaction: item,
+          returnTo: 'Transactions',
+        })
+      }
     >
       <View style={styles.transactionHeader}>
-        <Text style={styles.accountName}>{getAccountName(item.account_id)}</Text>
+        <Text style={styles.transactionTitle}>{getTransactionTitle(item)}</Text>
         <Text style={[styles.amount, item.type === 'income' ? styles.income : styles.expense]}>
-          {item.type === 'income' ? '+' : '-'}${item.amount.toFixed(2)}
+          {formatSignedCurrency(item.type === 'income' ? item.amount : -item.amount)}
         </Text>
       </View>
-      <Text style={styles.description}>{item.description}</Text>
+      <Text style={styles.accountLabel}>{getAccountLabel(item.account_id)}</Text>
       <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
     </TouchableOpacity>
   );
@@ -179,11 +181,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  accountName: {
+  transactionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
     flex: 1,
+    marginRight: 12,
   },
   amount: {
     fontSize: 18,
@@ -195,8 +198,8 @@ const styles = StyleSheet.create({
   expense: {
     color: '#dc3545',
   },
-  description: {
-    fontSize: 14,
+  accountLabel: {
+    fontSize: 13,
     color: '#666',
     marginBottom: 4,
   },

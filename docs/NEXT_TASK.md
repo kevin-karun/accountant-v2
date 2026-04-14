@@ -1,34 +1,33 @@
-# Next Task — Checkpoint 7: Bills Foundation Planning
+# Next Task — Checkpoint 7.1: Transactions Polish Follow-Up
 
 **Last Updated:** April 14, 2026  
-**Current Focus:** Checkpoint 7  
-**Target Checkpoint:** Checkpoint 7  
-**Objective:** Bills Foundation Planning  
-**Estimated Scope:** Define and implement the first simple bills data model and UI flow
+**Current Focus:** Checkpoint 7.1  
+**Target Checkpoint:** Checkpoint 7.1  
+**Objective:** Transactions Polish Follow-Up  
+**Estimated Scope:** Tighten any remaining transaction edit UX edges before moving on to bills planning
 
-Checkpoint 6.1 is complete, and Checkpoint 5.7 further tightened Add Transaction with auto-scroll-to-success and more compact spacing.
+Checkpoint 7.0 completed transaction lifecycle support with edit and delete using the existing Add Transaction screen.
 
 ## In Scope
-1. Define a simple bills/checklist scope that fits the current offline-first architecture
-2. Add minimal data shape and storage support for bills if needed
-3. Create a basic bills screen or flow consistent with current app styling
-4. Keep implementation incremental and local-first
-5. Preserve existing Accounts, Transactions, and Dashboard behavior
+1. Review transaction edit flow for any remaining UX rough edges
+2. Keep improvements local to transaction screens if needed
+3. Preserve Accounts, Dashboard, and current SQLite behavior
+4. Avoid architecture changes before future bills planning
+5. Keep changes low-risk and incremental
 
 ## Out of Scope
-- Recurring automation engines
-- Notifications or reminders
+- Bills implementation
 - Cloud sync or shared data
-- Complex scheduling rules
+- Global state or navigation redesign
+- New dependency adoption
 
 ## Success Criteria
-- Bills scope is clearly defined and implemented simply
-- New bills behavior fits the current SQLite-first app structure
+- Transaction edit flow feels complete and stable
 - Existing screens remain stable
 - App runs without crashes
 
 ---
 
-**After Completing Checkpoint 7:**
+**After Completing Checkpoint 7.1:**
 - Update CHANGELOG.md, TASKS.md, DECISIONS.md, docs/STATE.md, and docs/NEXT_TASK.md
 - Continue with feature work in an incremental, low-risk way

@@ -1,5 +1,41 @@
 # Changelog
 
+## Checkpoint 7.0 - Transactions Edit/Delete Completion
+
+- Added transaction edit mode to Add Transaction using route params and a local `mode` flag
+- Tapping a transaction on Transactions or Dashboard now opens Add Transaction in edit mode with all fields pre-filled
+- Added `updateTransaction()` to the transaction service and reused the existing `deleteTransaction()` service in edit mode
+- Edit mode now shows `Save Changes` and a deterministic `Delete Transaction` button with confirmation
+- After update or delete, the app navigates back to the originating screen so existing focus-based reloads refresh Transactions and Dashboard values
+- Create mode behavior, inline validation, compact spacing, and inline create success feedback remain intact
+- npm run verify passes
+
+## Checkpoint 6.3 - Dashboard Preview Density & Transaction Row Clarity
+
+- Reduced Dashboard recent transactions preview from 5 items to 3 to keep the screen summary-first
+- Kept Dashboard accounts preview at 3 items
+- Updated Dashboard and Transactions row hierarchy to show description first, account name plus type second, and date third
+- Added sensible transaction title fallbacks for missing descriptions: Income or Expense
+- Preserved signed amount formatting with green income and red expense styling
+- npm run verify passes
+
+## Checkpoint 6.2 - Dashboard Summary Hierarchy
+
+- Moved Recent Transactions above Accounts so Dashboard prioritizes recent activity
+- Limited the Dashboard accounts preview to the first 3 accounts
+- Added helper text directing users to the Accounts tab for the full list
+- Tightened account row identity by showing name and type together for quicker scanning
+- Kept dashboard data loading, refresh-on-focus, and services unchanged
+- npm run verify passes
+
+## Checkpoint 6.1 - Dashboard Meaningful Data Refinement
+
+- Added net change for the last 7 days under Total Balance using existing transaction data
+- Recent transaction amounts now keep explicit signed income/expense formatting for quicker scanning
+- Dashboard empty-state text now better guides the next step based on whether accounts already exist
+- Kept existing dashboard load path, refresh-on-focus behavior, and services unchanged
+- npm run verify passes
+
 ## Checkpoint 5.7 - Add Transaction UX Tightening
 
 - Add Transaction now auto-scrolls to the top after a successful create so inline success feedback is immediately visible
