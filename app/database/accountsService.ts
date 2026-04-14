@@ -1,5 +1,6 @@
 import { databaseService } from './index';
 import { Account } from './types';
+import { getTransactionsByAccount } from './transactionsService';
 
 function generateAccountId(): string {
   const random = Math.random().toString(36).substring(2, 9);
@@ -73,4 +74,24 @@ export async function deleteAccount(id: string): Promise<void> {
     `DELETE FROM accounts WHERE id = ?`,
     [id]
   );
+}
+
+export async function getAccountBalance(accountId: string): Promise<number> {
+  const account = await getAccountById(accountId);
+  if (!account) return 0;
+
+  const transactions = await getTransactionsByAccount(accountId);
+
+  let balance = account.opening_balance;
+
+  for (const transaction of transactions) {
+    if (transaction.type === 'income') {
+      balance += transaction.amount;
+    } else if (transaction.type === 'expense') {
+      balance -= transaction.amount;
+    }
+    // Note: transfer logic would go here if implemented
+  }
+
+  return balance;
 }

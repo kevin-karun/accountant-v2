@@ -42,6 +42,94 @@
 - ✅ Accounts UI polish (Checkpoint 4.1)
 - ✅ Accounts edit mode UX polish (Checkpoint 4.2)
 
+## Checkpoint 5.1 — Transaction Foundation Fixes ✅
+
+- ✅ Fixed Create Account button visibility with "New Account" button in header
+- ✅ Replaced alert popups with inline red validation errors for transaction form
+- ✅ Added screen refresh when navigating back to Transactions list
+- ✅ Ensured transaction creation clears errors and shows success
+- ✅ Verified transactions persist after app restart
+- ✅ Maintained all existing Accounts CRUD behavior
+- ✅ npm run verify passes
+
+## Checkpoint 5.2 — Accounts Form Validation & Duplicate Prevention ✅
+
+- ✅ Restored clear Create Account and Save Changes primary buttons
+- ✅ Added inline field errors for account name, account type, opening balance, and duplicates
+- ✅ Blocked duplicate accounts using trimmed case-insensitive name + type matching
+- ✅ Preserved edit/delete account flows
+- ✅ npm run verify passes
+
+## Checkpoint 5.3 — Accounts Form UX Completion ✅
+
+- ✅ Disabled Create and Save Changes buttons when the form is invalid
+- ✅ Moved duplicate-account error into Account Name field area
+- ✅ Added inline success feedback for create/update actions
+- ✅ Kept transaction validation intact
+- ✅ npm run verify passes
+
+## Checkpoint 5.4 — Disabled Account Submit Guidance ✅
+
+- ✅ Made disabled Create Account and Save Changes states explainable with visible inline validation
+- ✅ Surface missing account name, missing account type, invalid opening balance, and duplicate conflicts before submit when appropriate
+- ✅ Kept validation clean by showing errors after field interaction or once the form is partially filled
+- ✅ Preserved existing account CRUD, duplicate prevention, and transaction validation behavior
+- ✅ npm run verify passes
+
+## Checkpoint 5.5 — Validation Hierarchy & Error Timing Refinement ✅
+
+- ✅ Enforced validation order: name, then type, then opening balance, then duplicate conflict
+- ✅ Prevented balance and duplicate errors from appearing before the primary fields are valid
+- ✅ Limited inline guidance to the highest-priority blocking step to reduce confusion
+- ✅ Kept all logic local to AccountsScreen.tsx with no layout changes or new libraries
+- ✅ npm run verify passes
+
+## Checkpoint 5.6 — Transaction Inline Success Feedback ✅
+
+- ✅ Removed modal/popup success feedback from AddTransactionScreen
+- ✅ Added subtle inline success text after successful transaction creation
+- ✅ Clear success feedback when the user edits the transaction form again
+- ✅ Preserved transaction validation, form reset, and downstream screen refresh behavior
+- ✅ npm run verify passes
+
+## Checkpoint 5.7 — Add Transaction UX Tightening ✅
+
+- ✅ Auto-scroll to top after successful transaction creation so success text is immediately visible
+- ✅ Reduced unnecessary vertical spacing in AddTransactionScreen only
+- ✅ Kept inline validation, inline success clearing, and transaction creation behavior intact
+- ✅ Avoided redesigns, new packages, and unrelated screen changes
+- ✅ npm run verify passes
+
+## Checkpoint 5 — Transactions CRUD Foundation ✅
+
+- ✅ Transaction creation form (AddTransactionScreen)
+- ✅ Transaction list view (TransactionsScreen)
+- ✅ Create operation (insert to SQLite)
+- ✅ Read operation (list from SQLite)
+- ✅ Delete operation (long-press confirmation)
+- ✅ Balance calculation from transactions (ledger-based)
+- ✅ Account balance display updates
+- ✅ Transaction form validation
+- ✅ Empty state handling
+- ✅ Persistence across app restarts
+
+## Checkpoint 6 — Dashboard Foundation ✅
+
+- ✅ Show total balance across all accounts
+- ✅ Show account summary list with current ledger-based balances
+- ✅ Show latest 5 transactions with account name, description, amount, and date
+- ✅ Add clear empty states for accounts and recent transactions
+- ✅ Refresh Dashboard data when returning to the screen
+- ✅ npm run verify passes
+
+## Checkpoint 6.1 — Dashboard Runtime Load Error Fix ✅
+
+- ✅ Fixed Dashboard startup loading before SQLite initialization completed
+- ✅ Removed normal empty-state Dashboard error popup/toast behavior
+- ✅ Preserved refresh-on-focus and real data loading for populated states
+- ✅ Kept fix low-risk and local without new packages
+- ✅ npm run verify passes
+
 ## Future
 
 - Transaction logic

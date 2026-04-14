@@ -1,31 +1,34 @@
-# Next Task — Checkpoint 5: Transactions CRUD Foundation
+# Next Task — Checkpoint 7: Bills Foundation Planning
 
-**Target Checkpoint:** Checkpoint 5  
-**Objective:** Transactions CRUD Foundation (Create & Read)  
-**Estimated Scope:** Initialize transaction entry and display for financial tracking
+**Last Updated:** April 14, 2026  
+**Current Focus:** Checkpoint 7  
+**Target Checkpoint:** Checkpoint 7  
+**Objective:** Bills Foundation Planning  
+**Estimated Scope:** Define and implement the first simple bills data model and UI flow
+
+Checkpoint 6.1 is complete, and Checkpoint 5.7 further tightened Add Transaction with auto-scroll-to-success and more compact spacing.
 
 ## In Scope
-1. Add transaction creation form and database insert support
-2. Add transaction list display for saved entries
-3. Ensure transactions are linked to accounts via `account_id`
-4. Keep UI minimal and consistent with current app style
-5. Preserve offline SQLite behavior
+1. Define a simple bills/checklist scope that fits the current offline-first architecture
+2. Add minimal data shape and storage support for bills if needed
+3. Create a basic bills screen or flow consistent with current app styling
+4. Keep implementation incremental and local-first
+5. Preserve existing Accounts, Transactions, and Dashboard behavior
 
 ## Out of Scope
-- Transaction editing or deletion (future checkpoints)
-- Bills or recurring transactions
-- Sync, authentication, or cloud storage
-- Complex analytics or balance calculations
+- Recurring automation engines
+- Notifications or reminders
+- Cloud sync or shared data
+- Complex scheduling rules
 
 ## Success Criteria
+- Bills scope is clearly defined and implemented simply
+- New bills behavior fits the current SQLite-first app structure
+- Existing screens remain stable
 - App runs without crashes
-- Transaction creation works and persists in SQLite
-- Transaction list displays saved entries
-- New data appears after restart
-- Existing accounts flow remains unchanged
 
 ---
 
-**After Completing Checkpoint 5:**
+**After Completing Checkpoint 7:**
 - Update CHANGELOG.md, TASKS.md, DECISIONS.md, docs/STATE.md, and docs/NEXT_TASK.md
 - Continue with feature work in an incremental, low-risk way

@@ -1,5 +1,102 @@
 # Changelog
 
+## Checkpoint 5.7 - Add Transaction UX Tightening
+
+- Add Transaction now auto-scrolls to the top after a successful create so inline success feedback is immediately visible
+- Reduced vertical spacing within the Add Transaction form for a tighter iPhone-first layout
+- Tightened spacing around Account, Type, labels, controls, and the submit button without changing validation placement
+- Preserved inline success clearing, inline validation, transaction creation, and downstream refresh behavior
+- npm run verify passes
+
+## Checkpoint 5.6 - Transaction Inline Success Feedback
+
+- Removed the success popup from Add Transaction after successful creation
+- Added lightweight inline success text near the transaction form
+- Transaction success message now clears as soon as the user edits the form again
+- Preserved inline validation, form reset behavior, Transactions refresh, and Dashboard balance updates
+- npm run verify passes
+
+## Checkpoint 6.1 - Dashboard Runtime Load Error Fix
+
+- Fixed the Dashboard startup race where SQLite-dependent screens could load before the database finished initializing
+- Prevented the initial Dashboard tab from triggering `Database not initialized. Call initialize() first.`
+- Empty Dashboard states now load cleanly without error alerts or dev error toasts during normal startup
+- Kept Dashboard refresh-on-focus and existing ledger-based balance loading unchanged
+- Added a simple app-level fallback message for true database initialization failures
+- npm run verify passes
+
+## Checkpoint 6 - Dashboard Foundation
+
+- Replaced the placeholder Dashboard screen with real SQLite-backed account and transaction data
+- Added total balance summary using existing ledger-based account balance calculations
+- Added account summary section with account name, type, and current calculated balance
+- Added recent transactions section showing the latest 5 transactions with account name, description, amount, and date
+- Added clear empty states for missing accounts and missing transactions
+- Dashboard now refreshes when the screen regains focus using useFocusEffect
+- No new packages added and existing Accounts/Transactions behavior preserved
+- npm run verify passes
+
+## Checkpoint 5.5 - Validation Hierarchy & Error Timing Refinement
+
+- Refined account validation into a strict order: name, then type, then opening balance, then duplicate conflict
+- Tier 2 and Tier 3 account errors now stay hidden until the required name and type are valid
+- Duplicate account guidance now appears only after name, type, and opening balance all pass
+- Inline account validation now shows only the highest-priority blocking step to reduce noise
+- Preserved disabled submit behavior, duplicate prevention, success feedback, and transaction validation
+- npm run verify passes
+
+## Checkpoint 5.4 - Disabled Account Submit Guidance
+
+- Made disabled account submit actions self-explanatory with pre-submit inline validation
+- Added a placeholder account type state so missing type can be surfaced as a real validation blocker
+- Field errors now appear when a field has been interacted with or once the account form is partially filled
+- Preserved disabled Create Account and Save Changes behavior, duplicate prevention, and success feedback
+- Kept transaction validation unchanged
+- npm run verify passes
+
+## Checkpoint 5.1 - Transaction Foundation Fixes
+
+- Fixed Create Account button visibility: Added "New Account" button in form header for easy access to create mode
+- Replaced alert-based transaction validation with inline field errors in red text under each input
+- Added useFocusEffect to TransactionsScreen to refresh data when navigating back from Add Transaction
+- Transaction form now clears validation errors on successful creation
+- Maintained all existing CRUD behavior and balance calculations
+- Tests still passing (9/9)
+- TypeScript validation clean
+
+## Checkpoint 5.2 - Accounts Form Validation & Duplicate Prevention
+
+- Restored clear primary account action buttons: "Create Account" in create mode and "Save Changes" in edit mode
+- Added inline validation for account name, type, opening balance, and duplicate account conflicts
+- Prevented duplicate accounts with the same trimmed, case-insensitive name and identical type
+- Kept duplicate prevention from blocking saving the existing record without changes
+- Preserved all existing Accounts CRUD behavior and transaction validation
+- Tests still passing (9/9)
+- TypeScript validation clean
+## Checkpoint 5.3 - Accounts Form UX Completion
+
+- Disabled Create and Save Changes buttons when the account form is invalid
+- Attached duplicate-account errors inline near the Account Name field
+- Added lightweight inline success feedback for create and update actions
+- Maintained all existing account create/edit/delete behavior and balance display
+- Kept transaction inline validation unchanged
+- Tests still passing (9/9)
+- TypeScript validation clean
+
+## Checkpoint 5 - Transactions CRUD Foundation
+
+- Created transactionsService.ts with createTransaction, getAllTransactions, getTransactionsByAccount, deleteTransaction functions
+- Implemented AddTransactionScreen with form for creating transactions: account picker, type selector (income/expense), amount input, description input, date input
+- Implemented TransactionsScreen with list view showing all transactions with account name, type, amount, description, date
+- Added transaction deletion with long-press confirmation alert
+- Updated accountsService with getAccountBalance function that calculates balance from opening_balance + all income/expense transactions
+- Updated AccountsScreen to display calculated balances instead of static opening_balance
+- Transaction creation form includes validation for required fields and numeric amount
+- Transaction list shows empty state when no transactions exist
+- All transaction operations persist correctly to SQLite across app restarts
+- Tests still passing (9/9)
+- TypeScript validation clean
+
 ## Checkpoint 4 - Accounts CRUD Completion (Edit & Delete)
 
 - Added updateAccount() function to accountsService

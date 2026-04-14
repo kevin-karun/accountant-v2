@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 14, 2026  
-**Current Checkpoint:** 4.2 (Accounts Edit Mode UX Polish)
+**Current Checkpoint:** 6.1 (Dashboard Runtime Load Error Fix)
 
 ## Completed Checkpoints
 
@@ -14,15 +14,15 @@
 - Expo project initialized
 - Basic React Native setup
 - TypeScript configured
-- packages.json with initial dependencies
+- package.json with initial dependencies
 
 ### Checkpoint 1: App Shell
 - Bottom tab navigation implemented
 - 5 screen stubs created:
   - Dashboard
   - Transactions
-  - Add Transaction (primary action)
-  - Categories
+  - Add Transaction
+  - Accounts
   - Settings
 - Clean, minimalist UI styling applied
 - All screens render without crashes
@@ -41,142 +41,124 @@
 - Accounts service layer created (`app/database/accountsService.ts`)
 - Create account operation with form validation
 - List accounts operation with real-time display
-- Categories screen converted to Accounts management screen
+- Accounts screen converted from Categories to Accounts
 - Account form includes: name, type (dropdown), opening balance
 - Accounts display as list with name, type, balance
 - All operations persist to SQLite
 - Error handling and loading states implemented
 - Testing foundation established with Jest/jest-expo
 - Testing cleanup completed (9/9 tests passing)
-- **Checkpoint 3.1:** Accounts flow cleanup and hardening
-  - Renamed Categories tab to Accounts
-  - Renamed CategoriesScreen.tsx to AccountsScreen.tsx
-  - Added section headers for clearer form organization
-  - Reduced spacing for tighter layout
-  - Preserved all functionality
-- **Checkpoint 3.1.1:** Accounts screen scrolling fix
-  - Fixed scrolling regression from layout changes
-  - Replaced View container with ScrollView
-  - Removed flex layout constraints
-  - Full screen now scrolls vertically on iOS
-- **Checkpoint 3.2:** Local automated validation pipeline
-  - Added npm run typecheck script (TypeScript validation)
-  - Added npm run verify script (runs typecheck + test)
-  - Preserved npm run test script
-  - Local-first validation approach
-  - No CI/CD or Git hooks required yet
-- **Checkpoint 4:** Accounts CRUD Completion (Edit & Delete)
-  - Added updateAccount() and deleteAccount() functions
-  - Added getAccountById() for single account retrieval
-  - Inline edit mode triggered by tapping an account
-  - Edit form with Save/Cancel/Delete buttons
-  - Delete includes confirmation alert
-  - Account item selection is subtle and calm
-  - List refreshes immediately after operations
-  - All operations persist across app restarts
-- **Checkpoint 4.1:** Accounts UI Polish
-  - Refined Save/Cancel/Delete button hierarchy
-  - Reduced button visual weight and improved spacing
-  - Calmer selected account state with softer highlight
-  - Improved picker presentation with gentler background
-  - Preserved all existing functionality
-- **Checkpoint 4.2:** Accounts edit mode UX polish
-  - Restructured action buttons: Save/Cancel horizontal, Delete separated
-  - Added edit mode visual indicators: blue border and "EDITING" badge
-  - Reduced picker height for better proportions
-  - Improved action hierarchy with clearer primary/secondary/destructive roles
-  - Maintained all edit/delete functionality
-├── navigation/ (BottomTabNavigator with icons)
-└── database/ (SQLite layer)
-    ├── index.ts (DatabaseService singleton)
-    ├── schema.ts (table creation SQL)
-    ├── types.ts (TypeScript interfaces)
-    └── accountsService.ts (create/list operation
-├── App.tsx (main entry, DB initialization hook)
-├── index.ts
-├── app.json
-├── package.json
-├── screens/ (5 placeholder screens)
-├── navigation/ (BottomTabNavigator with icons)
-└── database/ (SQLite layer)
-    ├── index.ts (DatabaseService)
-    ├── schema.ts (table creation SQL)
-    └── types.ts (TypeScript interfaces)
-```
 
-**Tech Stack:**
-- React Native 0.81.5
-- Expo ~54.0.33
-- React Navigation (bottom-tabs)
-- Expo SQLite
-- TypeScript 5.9.2
+### Checkpoint 4: Accounts CRUD Completion
+- Edit account functionality implemented (inline edit mode)
+- Delete account functionality with confirmation alerts
+- Edit form reuses create form with conditional UI
+- Visual edit mode indicators (blue border, "EDITING" badge)
+- Action button hierarchy refined (Save/Cancel horizontal, Delete separate)
+- All operations persist and refresh UI immediately
+- Accounts UI polish completed
+- Edit mode UX polish completed
+
+### Checkpoint 5: Transactions CRUD Foundation
+- Transactions service layer created (`app/database/transactionsService.ts`)
+- Transaction creation form implemented with account picker, type selector, amount/description/date inputs
+- Transaction list view implemented with account names, amounts, descriptions, dates
+- Transaction deletion with long-press confirmation
+- Balance calculation updated to use ledger-based approach (opening_balance + transaction sums)
+- Account balances now reflect actual transaction history
+- Transaction operations persist to SQLite across app restarts
+
+### Checkpoint 5.1: Transaction Foundation Fixes
+- Create Account button visibility fixed with "New Account" button in form header
+- Transaction validation replaced with inline field errors (red text under inputs)
+- Transaction list refresh implemented with useFocusEffect for immediate updates
+- Form validation errors clear on successful transaction creation
+- All existing CRUD behavior preserved
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.2: Accounts Form Validation & Duplicate Prevention
+- Restored clear Create Account and Save Changes primary action buttons
+- Added inline field validation for account name, account type, opening balance, and duplicate conflicts
+- Prevented duplicate accounts using trimmed case-insensitive name plus same account type
+- Maintained existing edit/delete account flows and account balance behavior
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.3: Accounts Form UX Completion
+- Disabled Create and Save Changes buttons when the account form is invalid
+- Duplicate-account errors attached inline to the Account Name field area
+- Added lightweight inline success feedback for create/update completion
+- Preserved all existing account CRUD behavior and balance display
+- Kept transaction inline validation unchanged
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.4: Disabled Account Submit Guidance
+- Kept disabled Create Account and Save Changes buttons, but made invalid states explainable with visible inline validation
+- Added a placeholder account type selection so missing type can surface before submit
+- Account field errors now appear after field interaction or once the form becomes partially filled
+- Preserved duplicate prevention, success feedback, and transaction validation behavior
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.5: Validation Hierarchy & Error Timing Refinement
+- Accounts validation now follows a strict progression: name, then type, then opening balance, then duplicate conflict
+- Balance and duplicate guidance stay hidden until the required name and type are valid
+- Duplicate conflict does not appear until opening balance is also valid, reducing stacked and unrelated errors
+- Accounts form now shows only the highest-priority blocking inline error at a time
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.6: Transaction Inline Success Feedback
+- Removed the Add Transaction success popup so submission no longer requires an extra confirmation tap
+- Added lightweight inline success feedback near the transaction form after successful creation
+- Success feedback clears when the user edits the form again
+- Preserved transaction validation, transaction list refresh behavior, and dashboard balance updates
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 5.7: Add Transaction UX Tightening
+- Add Transaction now auto-scrolls to the top after success so inline confirmation is immediately visible
+- Tightened vertical spacing around Account, Type, labels, controls, and submit button to reduce scrolling
+- Kept inline validation under each field and preserved existing create/reset behavior
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 6: Dashboard Foundation
+- Dashboard now shows total balance across all accounts using existing ledger-based balance calculations
+- Added account summary section listing each account with name, type, and current calculated balance
+- Added recent transactions section showing the latest 5 items with account name, description, amount, and date
+- Added clear empty states for accounts and transactions so the screen remains useful with partial or empty data
+- Dashboard refreshes on focus with useFocusEffect to reflect the latest account and transaction changes
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 6.1: Dashboard Runtime Load Error Fix
+- Fixed the startup race where Dashboard could query SQLite before database initialization completed
+- Normal empty Dashboard states no longer trigger error alerts or dev error toasts
+- Dashboard still refreshes on focus and still loads total balance, account summaries, and recent transactions when data exists
+- Added a simple fallback screen for true database initialization failures
+- npm run verify passes (9/9 tests)
+
+## Current App Status
+- Accounts CRUD: complete with create, read, update, delete
+- Transaction foundation: create/list implemented
+- Transaction form UX: inline validation and inline success feedback are both in place
+- Add Transaction layout: tighter and less scroll-heavy, with success auto-scroll
+- Dashboard: implemented with total balance, account summaries, and recent transactions
+- Dashboard startup: stable with database-ready gating before initial tab mount
+- Inline validation: stable in Accounts and Transactions forms, with progressive account error sequencing
+- Duplicate prevention: active for Accounts
+- SQLite persistence: working across restarts
+- App runs without crashes in current workflow
 
 ## Current Constraints
-
-1. **Offline-first**: All data is local SQLite only
-2. **No sync**: Changes are never synced to backend
-3. **No auth**: Single-user app, no authentication
-4. **Manual entry**: No data imports or bulk operations
-5. **No state management**: Using React hooks only
-6. **Expo ecosystem only**: No external native libraries
+1. Offline-first only: local SQLite data
+2. No sync, no cloud, no auth
+3. Manual entry only, no import engines
+4. React hooks only, no state library
+5. Expo ecosystem packages only
 
 ## Current Repo Structure
+- `app/` — Expo app code
+- `app/screens/` — screen components
+- `app/database/` — SQLite service and CRUD logic
+- `docs/` — project state and next-task documentation
+- `CHANGELOG.md`, `TASKS.md`, `DECISIONS.md` — ongoing checkpoint tracking
 
-```
-Accountant-V2/
-├── AGENTS.md (this file's config)
-├── ARCHITECTURE.md
-├── CHANGELOG.md
-├── DECISIONS.md
-├── PRD.md
-├── README.md
-├── TASKS.md
-├── TESTING.md
-├── ACCEPTANCE_CRITERIA.md
-├── app/ (Expo React Native app)
-├── docs/
-│   ├── diagrams/
-│   ├── STATE.md (you are here)
-│   └── NEXT_TASK.md
-└── .codex/ (optional)
-```
-
-## Current App Behavior
-
-- **Startup**: App initializes, creates SQLite database, creates schema tables
-- **Navigation**: 5-tab bottom navigation fully functional
-- **Screens**: All screens render, each shows title and subtitle
-- **Database**: Silent initialization (logs to console on success)
-- **No crashes**: App stable on all navigation transitions
-
-## Known Risks & Open Questions
-
-### Risks
-- Database initialization failure is logged but not surfaced to user (acceptable for V1)
-- No migration system in place yet (not needed until schema changes)
-
-### Open Questions
-1. Should Categories screen show hardcoded categories or pull from settings?
-2. Should Dashboard show account summary data or remain a placeholder?
-3. How should Add Transaction interact with account selection?
-4. Settings: what settings are MVP? (currency, date format, theme?)
-
-## Status Summary
-
-✅ **App Shell:** Functional  
-✅ **Accounts CRUD (Create/Read):** Functional  
-⏳ **Accounts CRUD (Update/Delete):** Not yet implemented  
-⏳ **Transactions CRUDOperations:** Not yet implemented  
-⏳ **Forms:** Not yet implemented  
-⏳ **Business Logic:** Not yet implemented
-
----4 (Accounts CRUD Completion - Edit/Delete
-
-**Ready for:** Checkpoint 4 (Accounts CRUD Completion - Edit/Delete)
-
-**Testing Status:**
-- Jest configured and working with jest-expo preset
-- 2 test suites with 9 test cases (all passing)
-- Tests validate: Account ID format/uniqueness, module imports, schema constants, type structures
-- Package.json cleaned: jest-expo moved to devDependencies only
-- Ready for adding more test cases as features are implemented
+## Current Focus
+- Moving to next incremental feature work after Dashboard foundation
+- Keep next changes low-risk and incremental

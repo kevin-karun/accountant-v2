@@ -11,21 +11,35 @@ import {
   ScrollView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { createAccount, getAllAccounts, updateAccount, deleteAccount } from '../database/accountsService';
+import { createAccount, getAllAccounts, updateAccount, deleteAccount, getAccountBalance } from '../database/accountsService';
 import { Account } from '../database/types';
 
 export default function AccountsScreen() {
+  type AccountFormType = Account['type'] | '';
+
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [balances, setBalances] = useState<Record<string, number>>({});
   const [name, setName] = useState('');
-  const [type, setType] = useState<'bank' | 'credit_card' | 'cash' | 'other'>('bank');
+  const [type, setType] = useState<AccountFormType>('');
   const [balance, setBalance] = useState('');
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [successMessage, setSuccessMessage] = useState('');
 
   const loadAccounts = useCallback(async () => {
     try {
       const data = await getAllAccounts();
       setAccounts(data);
+
+      // Load balances for all accounts
+      const balancePromises = data.map(account => getAccountBalance(account.id));
+      const balanceResults = await Promise.all(balancePromises);
+      const balanceMap: Record<string, number> = {};
+      data.forEach((account, index) => {
+        balanceMap[account.id] = balanceResults[index];
+      });
+      setBalances(balanceMap);
     } catch (error) {
       console.error('Failed to load accounts:', error);
       Alert.alert('Error', 'Failed to load accounts');
@@ -39,27 +53,95 @@ export default function AccountsScreen() {
   const resetForm = () => {
     setName('');
     setBalance('');
-    setType('bank');
+    setType('');
     setEditingId(null);
+    setTouchedFields({});
+    setSuccessMessage('');
   };
 
-  const handleCreateAccount = async () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Account name is required');
-      return;
+  const getAccountFormErrors = () => {
+    const newErrors: Record<string, string> = {};
+    const trimmedName = name.trim();
+    const normalizedName = trimmedName.toLowerCase();
+    const hasName = trimmedName !== '';
+    const hasType = !!type;
+    const hasValidBalance = balance.trim() !== '' && !isNaN(parseFloat(balance));
+    const tier1Complete = hasName && hasType;
+
+    if (!hasName) {
+      newErrors.name = 'Account name is required';
     }
 
-    if (balance.trim() === '' || isNaN(parseFloat(balance))) {
-      Alert.alert('Error', 'Opening balance must be a valid number');
+    if (!hasType) {
+      newErrors.type = 'Account type is required';
+    }
+
+    if (!hasValidBalance) {
+      newErrors.balance = 'Opening balance must be a valid number';
+    }
+
+    if (tier1Complete && hasValidBalance) {
+      const duplicate = accounts.find(account => {
+        const sameName = account.name.trim().toLowerCase() === normalizedName;
+        const sameType = account.type === type;
+        const isSameRecord = editingId === account.id;
+        return sameName && sameType && !isSameRecord;
+      });
+
+      if (duplicate) {
+        newErrors.name = 'An account with this name and type already exists';
+      }
+    }
+
+    return newErrors;
+  };
+
+  const validateAccountForm = () => {
+    setTouchedFields({
+      name: true,
+      type: true,
+      balance: true,
+    });
+
+    return Object.keys(getAccountFormErrors()).length === 0;
+  };
+
+  const isAccountFormValid = () => {
+    return Object.keys(getAccountFormErrors()).length === 0;
+  };
+
+  const hasStartedAccountForm = name.trim() !== '' || balance.trim() !== '' || type !== '';
+  const trimmedName = name.trim();
+  const hasName = trimmedName !== '';
+  const hasType = !!type;
+  const tier1Complete = hasName && hasType;
+  const balanceTouched = !!touchedFields.balance;
+  const shouldShowNameError = !hasName && (touchedFields.name || hasStartedAccountForm);
+  const shouldShowTypeError = hasName && !hasType && (touchedFields.type || hasStartedAccountForm);
+  const accountFormErrors = getAccountFormErrors();
+  const visibleAccountErrors: Record<string, string> = {};
+
+  if (shouldShowNameError && accountFormErrors.name === 'Account name is required') {
+    visibleAccountErrors.name = accountFormErrors.name;
+  } else if (shouldShowTypeError && accountFormErrors.type) {
+    visibleAccountErrors.type = accountFormErrors.type;
+  } else if ((balanceTouched || tier1Complete) && accountFormErrors.balance) {
+    visibleAccountErrors.balance = accountFormErrors.balance;
+  } else if (tier1Complete && !accountFormErrors.balance && accountFormErrors.name) {
+    visibleAccountErrors.name = accountFormErrors.name;
+  }
+
+  const handleCreateAccount = async () => {
+    if (!validateAccountForm()) {
       return;
     }
 
     setLoading(true);
     try {
-      await createAccount(name, type, parseFloat(balance));
+      await createAccount(name.trim(), type as Account['type'], parseFloat(balance));
       resetForm();
       await loadAccounts();
-      Alert.alert('Success', 'Account created successfully');
+      setSuccessMessage('Account created successfully');
     } catch (error) {
       console.error('Failed to create account:', error);
       Alert.alert('Error', 'Failed to create account');
@@ -71,22 +153,16 @@ export default function AccountsScreen() {
   const handleEditAccount = async () => {
     if (!editingId) return;
 
-    if (!name.trim()) {
-      Alert.alert('Error', 'Account name is required');
-      return;
-    }
-
-    if (balance.trim() === '' || isNaN(parseFloat(balance))) {
-      Alert.alert('Error', 'Opening balance must be a valid number');
+    if (!validateAccountForm()) {
       return;
     }
 
     setLoading(true);
     try {
-      await updateAccount(editingId, name, type, parseFloat(balance));
+      await updateAccount(editingId, name.trim(), type as Account['type'], parseFloat(balance));
       resetForm();
       await loadAccounts();
-      Alert.alert('Success', 'Account updated successfully');
+      setSuccessMessage('Account updated successfully');
     } catch (error) {
       console.error('Failed to update account:', error);
       Alert.alert('Error', 'Failed to update account');
@@ -134,6 +210,8 @@ export default function AccountsScreen() {
     setName(account.name);
     setType(account.type);
     setBalance(account.opening_balance.toString());
+    setTouchedFields({});
+    setSuccessMessage('');
   };
 
   const renderAccountItem = ({ item }: { item: Account }) => (
@@ -146,13 +224,14 @@ export default function AccountsScreen() {
     >
       <Text style={styles.accountName}>{item.name}</Text>
       <Text style={styles.accountType}>{item.type.replace('_', ' ')}</Text>
-      <Text style={styles.accountBalance}>${item.opening_balance.toFixed(2)}</Text>
+      <Text style={styles.accountBalance}>${(balances[item.id] || item.opening_balance).toFixed(2)}</Text>
     </TouchableOpacity>
   );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>Accounts</Text>
+      {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
 
       {/* Form Section */}
       <View style={[styles.formSection, editingId && styles.formSectionEditing]}>
@@ -161,45 +240,69 @@ export default function AccountsScreen() {
             {editingId ? 'Edit Account' : 'Create New Account'}
           </Text>
           {editingId && <View style={styles.editBadge}><Text style={styles.editBadgeText}>EDITING</Text></View>}
+          {editingId && (
+            <TouchableOpacity
+              style={styles.newAccountButton}
+              onPress={resetForm}
+            >
+              <Text style={styles.newAccountButtonText}>New Account</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <TextInput
           style={styles.input}
           placeholder="Account name"
           value={name}
-          onChangeText={setName}
+          onChangeText={(value) => {
+            setName(value);
+            setSuccessMessage('');
+            setTouchedFields(prev => ({ ...prev, name: true }));
+          }}
           editable={!loading}
           placeholderTextColor="#999"
         />
+        {visibleAccountErrors.name && <Text style={styles.errorText}>{visibleAccountErrors.name}</Text>}
 
         <Picker
           style={styles.picker}
           selectedValue={type}
-          onValueChange={(itemValue) => setType(itemValue as any)}
+          onValueChange={(itemValue) => {
+            setType(itemValue as AccountFormType);
+            setSuccessMessage('');
+            setTouchedFields(prev => ({ ...prev, type: true }));
+          }}
           enabled={!loading}
         >
+          <Picker.Item label="Select account type" value="" />
           <Picker.Item label="Bank" value="bank" />
           <Picker.Item label="Credit Card" value="credit_card" />
           <Picker.Item label="Cash" value="cash" />
           <Picker.Item label="Other" value="other" />
         </Picker>
+        {visibleAccountErrors.type && <Text style={styles.errorText}>{visibleAccountErrors.type}</Text>}
 
         <TextInput
           style={styles.input}
           placeholder="Opening balance"
           value={balance}
-          onChangeText={setBalance}
+          onChangeText={(value) => {
+            setBalance(value);
+            setSuccessMessage('');
+            setTouchedFields(prev => ({ ...prev, balance: true }));
+          }}
           keyboardType="decimal-pad"
           editable={!loading}
           placeholderTextColor="#999"
         />
+        {visibleAccountErrors.balance && <Text style={styles.errorText}>{visibleAccountErrors.balance}</Text>}
 
         {editingId ? (
           <View style={styles.editActions}>
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                style={[styles.button, styles.buttonPrimary, styles.buttonSpacing, loading && styles.buttonDisabled]}
+                style={[styles.button, styles.buttonPrimary, styles.buttonSpacing, (loading || !isAccountFormValid()) && styles.buttonDisabled]}
                 onPress={handleEditAccount}
-                disabled={loading}
+                disabled={loading || !isAccountFormValid()}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
@@ -225,9 +328,9 @@ export default function AccountsScreen() {
           </View>
         ) : (
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, styles.buttonPrimary, (loading || !isAccountFormValid()) && styles.buttonDisabled]}
             onPress={handleCreateAccount}
-            disabled={loading}
+            disabled={loading || !isAccountFormValid()}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -353,6 +456,7 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: '#b3b3b3',
+    opacity: 0.65,
   },
   buttonText: {
     color: '#fff',
@@ -432,5 +536,27 @@ const styles = StyleSheet.create({
     color: '#999',
     fontStyle: 'italic',
     marginTop: 20,
+  },
+  errorText: {
+    color: '#dc3545',
+    fontSize: 14,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  successText: {
+    color: '#2d8a26',
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  newAccountButton: {
+    backgroundColor: '#28a745',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  newAccountButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

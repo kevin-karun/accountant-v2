@@ -42,6 +42,60 @@
 - Minimalist design with clean spacing and clear section headers
 - Form sections use white backgrounds with subtle shadows for visual separation
 - Bottom navigation uses consistent iconography (Ionicons)
+- Dashboard uses the same simple card/list treatment as the rest of the app, with no charts or extra visual systems
+
+## Transaction Validation UX
+
+- Alert-based validation replaced with inline field errors for better UX
+- Error messages displayed in red text directly under relevant input fields
+- Validation state managed with errors object (Record<string, string>)
+- Form clears all errors on successful submission
+- Simple field-specific validation without complex rules
+- No additional validation libraries or dependencies
+- Transaction success feedback is inline and non-blocking, matching the account form direction
+- Add Transaction success text clears on the next user edit to keep the form responsive without extra taps
+- Add Transaction scrolls back to the top after a successful create so inline success is immediately visible
+- Add Transaction spacing is intentionally compact to reduce scrolling on iPhone-sized layouts without changing form structure
+
+## Transaction List Refresh
+
+- useFocusEffect from React Navigation used to refresh transaction list when screen comes into focus
+- Ensures newly created transactions appear immediately after navigation
+- No manual refresh buttons or pull-to-refresh (keeps UI simple)
+- Automatic refresh on tab navigation maintains expected mobile app behavior
+
+## Create Account Button Visibility
+
+- Added "New Account" button in form header for consistent access to create mode when editing
+- Green cancel button only appears while editing to avoid confusion in create mode
+- Primary action button remains the main control: Create Account in create mode, Save Changes in edit mode
+- No major UI restructuring, minimal change to preserve existing patterns
+
+## Accounts Inline Validation
+
+- Standardized form validation to inline errors for account name, account type, opening balance, and duplicate conflict
+- Duplicate detection uses trimmed, case-insensitive name plus matching account type
+- Duplicate errors display directly in the Account Name field area for clearer hierarchy
+- Validation errors display in red text below the relevant field
+- Errors clear when the user edits the field to keep the form responsive and user-safe
+- Submit buttons are disabled when the form is invalid to prevent premature submission
+- Lightweight inline success feedback is used for create/update completion
+- No form library or global validation framework added; logic remains local to screen component
+- Accounts form keeps submit buttons disabled on invalid state, but now derives visible inline errors before submit
+- Error visibility rule: show account errors after field interaction or once any account form field has been filled
+- Account type now uses a placeholder selection in create mode so missing type remains explainable without changing validation scope
+- Account validation is progressive: name and type are Tier 1, opening balance is Tier 2, duplicate conflict is Tier 3
+- Later-tier account errors stay hidden until earlier tiers pass to keep the disabled state explainable without stacking messages
+- Accounts screen renders only the highest-priority visible blocking error at a time, using existing inline field placement
+
+## Dashboard Data Loading
+
+- Dashboard screen loads accounts and transactions directly from existing SQLite services
+- Current account balances are reused from `getAccountBalance()` so dashboard totals stay aligned with Accounts screen ledger logic
+- Latest dashboard transactions come from `getAllTransactions()` and are limited locally to the most recent 5
+- Dashboard refreshes with `useFocusEffect` so tab return reflects recent account and transaction changes without navigation changes
+- No dedicated dashboard service was added because the existing service layer already covered the required data cleanly
+- App navigation now waits for SQLite initialization before mounting the tab screens, preventing the initial Dashboard load from racing database startup
 
 ## Testing
 
