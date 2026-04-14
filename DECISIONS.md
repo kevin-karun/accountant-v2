@@ -15,6 +15,18 @@
 - Screen components use React hooks (useState, useEffect, useCallback) for state
 - No external state management library used for V1
 
+## Edit/Delete Implementation
+
+- Inline edit mode triggered by tapping an account item
+- Edit form reuses the create form with conditional UI (section title, button labels)
+- Edit state managed with editingId to track which account is being edited
+- Delete operation uses native Alert.alert() for confirmation (no extra dependencies)
+- Account item selection is subtle and calm, not visually overwhelming
+- Edit mode visually indicated with blue left border and "EDITING" badge
+- Action buttons restructured: Save/Cancel horizontal, Delete separated below
+- Simplified approach: no separate edit screen, all operations on same screen
+- List refreshes immediately after update/delete via loadAccounts() callback
+
 ## Build and Validation
 
 - Local validation pipeline with npm run verify for quick checks

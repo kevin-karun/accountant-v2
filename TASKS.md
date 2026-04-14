@@ -29,8 +29,18 @@
 - ✅ Accounts flow cleanup and hardening (Checkpoint 3.1)
 - ✅ Accounts screen scrolling fix (Checkpoint 3.1.1)
 - ✅ Local automated validation pipeline (Checkpoint 3.2)
-- ⏳ Account editing (Checkpoint 4)
-- ⏳ Account deletion (Checkpoint 4)
+
+## Checkpoint 4 — Accounts CRUD Completion ✅
+
+- ✅ Account editing (Update operation)
+- ✅ Account deletion (Delete operation)
+- ✅ Tap to edit account functionality
+- ✅ Confirmation alert before deletion
+- ✅ Edit form with save/cancel/delete buttons
+- ✅ Account selection visual feedback
+- ✅ Persistence across app restarts
+- ✅ Accounts UI polish (Checkpoint 4.1)
+- ✅ Accounts edit mode UX polish (Checkpoint 4.2)
 
 ## Future
 

@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
-**Last Updated:** April 9, 2026  
-**Current Checkpoint:** 3.2 (Local Automated Validation Pipeline)
+**Last Updated:** April 14, 2026  
+**Current Checkpoint:** 4.2 (Accounts Edit Mode UX Polish)
 
 ## Completed Checkpoints
 
@@ -65,6 +65,27 @@
   - Preserved npm run test script
   - Local-first validation approach
   - No CI/CD or Git hooks required yet
+- **Checkpoint 4:** Accounts CRUD Completion (Edit & Delete)
+  - Added updateAccount() and deleteAccount() functions
+  - Added getAccountById() for single account retrieval
+  - Inline edit mode triggered by tapping an account
+  - Edit form with Save/Cancel/Delete buttons
+  - Delete includes confirmation alert
+  - Account item selection is subtle and calm
+  - List refreshes immediately after operations
+  - All operations persist across app restarts
+- **Checkpoint 4.1:** Accounts UI Polish
+  - Refined Save/Cancel/Delete button hierarchy
+  - Reduced button visual weight and improved spacing
+  - Calmer selected account state with softer highlight
+  - Improved picker presentation with gentler background
+  - Preserved all existing functionality
+- **Checkpoint 4.2:** Accounts edit mode UX polish
+  - Restructured action buttons: Save/Cancel horizontal, Delete separated
+  - Added edit mode visual indicators: blue border and "EDITING" badge
+  - Reduced picker height for better proportions
+  - Improved action hierarchy with clearer primary/secondary/destructive roles
+  - Maintained all edit/delete functionality
 ├── navigation/ (BottomTabNavigator with icons)
 └── database/ (SQLite layer)
     ├── index.ts (DatabaseService singleton)

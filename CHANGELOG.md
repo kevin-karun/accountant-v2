@@ -1,5 +1,43 @@
 # Changelog
 
+## Checkpoint 4 - Accounts CRUD Completion (Edit & Delete)
+
+- Added updateAccount() function to accountsService
+- Added deleteAccount() function to accountsService
+- Added getAccountById() function for retrieving single account
+- Updated database layer to support account updates and deletions
+- Accounts screen now supports edit mode triggered by tapping an account
+- Added edit form with Save/Cancel/Delete buttons when editing
+- Edit form pre-fills with current account values
+- Delete includes confirmation alert to prevent accidental deletion
+- Updated list refreshes immediately after edit/delete operations
+- Account items highlight when selected for editing
+- Preserved existing create/list functionality
+- All operations persist correctly to SQLite across app restarts
+- Tests still passing (9/9)
+- TypeScript validation clean
+
+# Changelog
+
+## Checkpoint 4.2 - Accounts Edit Mode UX Polish
+
+- Restructured edit action buttons: Save/Cancel now in horizontal row, Delete separated below
+- Added subtle edit mode visual indicator: blue left border on form section and "EDITING" badge
+- Reduced picker minHeight from 48 to 44 for more proportional sizing
+- Improved action hierarchy: primary Save action, secondary Cancel, separated destructive Delete
+- Maintained all existing edit/delete functionality and persistence
+- Tests still passing (9/9)
+
+## Checkpoint 4.1 - Accounts UI Polish
+
+- Refined action button hierarchy for Save/Cancel/Delete
+- Lightened the edit mode visual treatment
+- Adjusted spacing between title, form, action row, and saved accounts
+- Calmer selected-account styling with subtle highlight
+- Picker presentation improved with gentler background and border
+- Maintained all current account behavior and persistence
+- Tests still passing (9/9)
+
 ## Checkpoint 3.2 - Local Automated Validation Pipeline
 
 - Added npm run typecheck script using tsc --noEmit
