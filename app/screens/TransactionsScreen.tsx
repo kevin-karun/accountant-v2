@@ -77,8 +77,20 @@ export default function TransactionsScreen() {
 
   const renderTransaction = ({ item }: { item: Transaction }) => (
     <TouchableOpacity
-      testID={item.description === 'Smoke expense' ? 'transaction-row-smoke-expense' : undefined}
-      accessibilityLabel={item.description === 'Smoke expense' ? 'transaction-row-smoke-expense' : undefined}
+      testID={
+        item.description === 'Smoke expense'
+          ? 'transaction-row-smoke-expense'
+          : item.description === 'Smoke expense updated'
+            ? 'transaction-row-smoke-expense-updated'
+            : undefined
+      }
+      accessibilityLabel={
+        item.description === 'Smoke expense'
+          ? 'transaction-row-smoke-expense'
+          : item.description === 'Smoke expense updated'
+            ? 'transaction-row-smoke-expense-updated'
+            : undefined
+      }
       style={styles.transactionItem}
       onPress={() =>
         navigation.navigate('Add Transaction', {

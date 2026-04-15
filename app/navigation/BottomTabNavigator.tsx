@@ -45,7 +45,14 @@ export default function BottomTabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          tabBarButtonTestID: 'tab-dashboard',
+          tabBarAccessibilityLabel: 'tab-dashboard',
+        }}
+      />
       <Tab.Screen
         name="Transactions"
         component={TransactionsScreen}
@@ -78,7 +85,14 @@ export default function BottomTabNavigator() {
           tabBarAccessibilityLabel: 'tab-accounts',
         }}
       />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarButtonTestID: 'tab-settings',
+          tabBarAccessibilityLabel: 'tab-settings',
+        }}
+      />
     </Tab.Navigator>
   );
 }

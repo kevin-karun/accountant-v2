@@ -64,6 +64,14 @@ export default function AddTransactionScreen() {
 
   useEffect(() => {
     if (params.mode === 'edit' && params.transaction) {
+      console.log('AddTransactionScreen entering edit mode with transaction:', {
+        id: params.transaction.id,
+        account_id: params.transaction.account_id,
+        type: params.transaction.type,
+        amount: params.transaction.amount,
+        description: params.transaction.description,
+        date: params.transaction.date,
+      });
       setMode('edit');
       setEditingTransactionId(params.transaction.id);
       setReturnToScreen(params.returnTo ?? null);
@@ -219,13 +227,32 @@ export default function AddTransactionScreen() {
     setLoading(true);
     try {
       const transactions = await getTransactionsByAccount(smokeAccount.id);
-      const smokeExpenseExists = transactions.some((transaction) => {
+      const smokeTransactions = transactions.filter((transaction) => {
         return transaction.type === 'expense'
           && transaction.amount === 25
-          && transaction.description === 'Smoke expense';
+          && (
+            transaction.description === 'Smoke expense'
+            || transaction.description === 'Smoke expense updated'
+          );
       });
 
-      if (smokeExpenseExists) {
+      if (smokeTransactions.length > 0) {
+        const [primaryTransaction, ...duplicateTransactions] = smokeTransactions;
+
+        for (const duplicateTransaction of duplicateTransactions) {
+          await deleteTransaction(duplicateTransaction.id);
+        }
+
+        if (primaryTransaction.description !== 'Smoke expense') {
+          await updateTransaction(primaryTransaction.id, {
+            account_id: primaryTransaction.account_id,
+            type: 'expense',
+            amount: primaryTransaction.amount,
+            description: 'Smoke expense',
+            date: primaryTransaction.date,
+          });
+        }
+
         setSuccessMessage('Smoke expense already exists');
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
         return;
@@ -251,7 +278,62 @@ export default function AddTransactionScreen() {
   };
 
   const handleSaveTransaction = async () => {
-    if (!editingTransactionId || !validateForm()) {
+    console.log('EDIT TRANSACTION SUBMIT PRESSED');
+    console.log('AddTransactionScreen edit form state:', {
+      editingTransactionId,
+      accountId: selectedAccountId,
+      type,
+      amount,
+      description,
+      date,
+    });
+
+    if (!editingTransactionId) {
+      console.log('AddTransactionScreen edit blocked: missing editingTransactionId');
+      return;
+    }
+
+    if (!validateForm()) {
+      console.log('AddTransactionScreen edit blocked by validation');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const updatePayload = {
+        account_id: selectedAccountId,
+        type,
+        amount: parseFloat(amount),
+        description,
+        date,
+      };
+
+      console.log('AddTransactionScreen edit payload:', updatePayload);
+
+      await updateTransaction(editingTransactionId, updatePayload);
+
+      console.log('AddTransactionScreen updateTransaction completed:', {
+        editingTransactionId,
+      });
+
+      console.log('AddTransactionScreen navigating after edit to:', returnToScreen ?? 'Transactions');
+      navigateAfterEdit();
+    } catch (error) {
+      console.error('Failed to update transaction:', error);
+      Alert.alert('Error', 'Failed to update transaction');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApplySmokeTransactionUpdate = async () => {
+    if (!editingTransactionId) {
+      return;
+    }
+
+    if (description === 'Smoke expense updated') {
+      setSuccessMessage('Smoke expense already updated');
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       return;
     }
 
@@ -261,14 +343,16 @@ export default function AddTransactionScreen() {
         account_id: selectedAccountId,
         type,
         amount: parseFloat(amount),
-        description,
+        description: 'Smoke expense updated',
         date,
       });
 
-      navigateAfterEdit();
+      setDescription('Smoke expense updated');
+      setSuccessMessage('Smoke expense updated successfully');
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     } catch (error) {
-      console.error('Failed to update transaction:', error);
-      Alert.alert('Error', 'Failed to update transaction');
+      console.error('Failed to apply smoke transaction update:', error);
+      Alert.alert('Error', 'Failed to apply smoke transaction update');
     } finally {
       setLoading(false);
     }
@@ -315,6 +399,17 @@ export default function AddTransactionScreen() {
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Transaction Details</Text>
+        {__DEV__ && mode === 'edit' ? (
+          <TouchableOpacity
+            testID="apply-smoke-transaction-update"
+            accessibilityLabel="apply-smoke-transaction-update"
+            style={styles.smokeHelperButton}
+            onPress={handleApplySmokeTransactionUpdate}
+            disabled={loading}
+          >
+            <Text style={styles.smokeHelperButtonText}>Apply Smoke Transaction Update</Text>
+          </TouchableOpacity>
+        ) : null}
         {__DEV__ && mode === 'create' && smokeAccount ? (
           <TouchableOpacity
             testID="create-smoke-expense"
@@ -405,12 +500,15 @@ export default function AddTransactionScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Description</Text>
           <TextInput
-            testID="add-transaction-description-input"
-            accessibilityLabel="add-transaction-description-input"
+            testID={mode === 'edit' ? 'edit-transaction-description-input' : 'add-transaction-description-input'}
+            accessibilityLabel={mode === 'edit' ? 'edit-transaction-description-input' : 'add-transaction-description-input'}
             style={styles.input}
             placeholder="Transaction description"
             value={description}
             onChangeText={(value) => {
+              if (mode === 'edit') {
+                console.log('EDIT TX DESCRIPTION CHANGED:', value);
+              }
               console.log('ADD TX DESCRIPTION CHANGED:', value);
               setDescription(value);
               setSuccessMessage('');
@@ -441,6 +539,8 @@ export default function AddTransactionScreen() {
           <View style={styles.editActions}>
             <View style={styles.buttonRow}>
               <TouchableOpacity
+                testID="edit-transaction-submit"
+                accessibilityLabel="edit-transaction-submit"
                 style={[styles.button, styles.buttonRowAction, styles.buttonFlex, styles.buttonSpacing, loading && styles.buttonDisabled]}
                 onPress={handleSaveTransaction}
                 disabled={loading}
@@ -460,6 +560,8 @@ export default function AddTransactionScreen() {
               </TouchableOpacity>
             </View>
             <TouchableOpacity
+              testID="edit-transaction-delete"
+              accessibilityLabel="edit-transaction-delete"
               style={[styles.deleteButton, loading && styles.buttonDisabled]}
               onPress={handleDeleteTransaction}
               disabled={loading}

@@ -167,6 +167,16 @@ export default function DashboardScreen() {
           recentTransactions.map((transaction) => (
             <TouchableOpacity
               key={transaction.id}
+              testID={
+                transaction.description === 'Smoke expense updated'
+                  ? 'dashboard-recent-row-smoke-expense-updated'
+                  : undefined
+              }
+              accessibilityLabel={
+                transaction.description === 'Smoke expense updated'
+                  ? 'dashboard-recent-row-smoke-expense-updated'
+                  : undefined
+              }
               style={styles.listItem}
               onPress={() =>
                 navigation.navigate('Add Transaction', {

@@ -83,23 +83,46 @@ export async function updateTransaction(
     date: string;
   }
 ): Promise<void> {
+  console.log('transactionsService.updateTransaction called with:', {
+    transactionId,
+    updatedData,
+  });
+
   const db = databaseService.getDatabase();
   const now = new Date().toISOString();
 
-  await db.runAsync(
-    `UPDATE transactions
-     SET account_id = ?, type = ?, amount = ?, description = ?, date = ?, updated_at = ?
-     WHERE id = ?`,
-    [
-      updatedData.account_id,
-      updatedData.type,
-      updatedData.amount,
-      updatedData.description,
-      updatedData.date,
-      now,
+  try {
+    const result = await db.runAsync(
+      `UPDATE transactions
+       SET account_id = ?, type = ?, amount = ?, description = ?, date = ?, updated_at = ?
+       WHERE id = ?`,
+      [
+        updatedData.account_id,
+        updatedData.type,
+        updatedData.amount,
+        updatedData.description,
+        updatedData.date,
+        now,
+        transactionId,
+      ]
+    );
+
+    console.log('transactionsService.updateTransaction result:', {
       transactionId,
-    ]
-  );
+      changes: result.changes,
+      lastInsertRowId: result.lastInsertRowId,
+    });
+
+    const updatedRow = await db.getFirstAsync(
+      'SELECT * FROM transactions WHERE id = ?',
+      [transactionId]
+    );
+
+    console.log('transactionsService.updateTransaction fetched row:', updatedRow);
+  } catch (error) {
+    console.error('transactionsService.updateTransaction failed:', error);
+    throw error;
+  }
 }
 
 export async function deleteTransaction(transactionId: string): Promise<void> {
