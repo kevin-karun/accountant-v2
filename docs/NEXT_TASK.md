@@ -1,39 +1,34 @@
-# Next Task — Accountant V2
+# Next Task
 
-## Objective
-Stabilize and extend post-smoke test architecture.
+## Immediate goal
+Expand test coverage beyond the current smoke flow.
 
-## Current State
-- Smoke flow fully stable using Option C
-- Deterministic setup via Dev Tools
-- Pure subflows implemented
-- Verification uses real UI selectors
+## Done
+- Smoke flow passes reliably with Option C
+- smoke.yaml is the only orchestrator
+- subflows are pure
+- reset preflight is deterministic
+- create/update/delete use Dev Tools helpers
+- verify uses real UI selectors
 
-## Next Priorities
+## Next automation targets
+1. Income transaction flow
+   - create income transaction
+   - verify transaction row appears
+   - verify dashboard reflects it
+   - verify account balance changes correctly
 
-1. Add test coverage for edge cases
-   - Multiple transactions
-   - Different transaction types (income vs expense)
-   - Empty vs populated states
+2. Validation flow
+   - attempt save with missing required fields
+   - verify validation errors appear
+   - verify nothing is created
 
-2. Strengthen verification layer
-   - Validate amounts
-   - Validate account balances update correctly
-   - Validate transaction list ordering
+3. Multi-transaction flow
+   - create multiple transactions
+   - verify order in Transactions
+   - verify dashboard recent transactions
+   - verify final balance
 
-3. Remove Dev Tools dependency (long-term)
-   - Gradually replace with real UI flows
-   - Keep tests deterministic without internal shortcuts
-
-4. Improve selector stability
-   - Ensure all critical UI elements have testIDs
-   - Avoid text-based selectors where possible
-
-## Constraints
-- No redesign
-- No new packages
-- Minimal diffs only
-
-## Definition of Done
-- Smoke test extended with at least 2 additional scenarios
-- No flaky runs across 5 consecutive executions
+## Rule
+Keep smoke.yaml small and fast.
+Do not bloat smoke with broader scenario coverage.
