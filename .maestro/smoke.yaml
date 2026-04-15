@@ -36,7 +36,9 @@ appId: host.exp.Exponent
 - tapOn: "Description"
 - inputText: "Smoke expense"
 - tapOn: "Add Transaction"
-- assertVisible: "Transaction created successfully"
+- tapOn: "tab-transactions"
+- assertVisible: "Transactions"
+- assertVisible: "Smoke expense"
 
 - tapOn: "Transactions"
 - assertVisible: "Transactions"
