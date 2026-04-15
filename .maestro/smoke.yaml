@@ -47,7 +47,8 @@ appId: host.exp.Exponent
 - tapOn: "tab-transactions"
 - assertVisible: "Transactions"
 - waitForAnimationToEnd
-- assertVisible: "Smoke expense"
+- assertVisible:
+    id: "transaction-row-smoke-expense"
 
 - tapOn: "Transactions"
 - assertVisible: "Transactions"
