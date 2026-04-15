@@ -1,11 +1,9 @@
-- runFlow: create-transaction.yaml
+appId: host.exp.exponent
+---
 - tapOn:
-    id: "tab-transactions"
-- assertVisible: "Transactions"
-- tapOn:
-    id: "transaction-row-smoke-expense"
-- assertVisible: "Edit Transaction"
-- tapOn: "apply-smoke-transaction-update"
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-apply-smoke-update"
 - waitForAnimationToEnd
 - runFlow:
     when:

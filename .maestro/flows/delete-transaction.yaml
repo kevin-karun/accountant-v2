@@ -1,29 +1,32 @@
-- runFlow: update-transaction.yaml
+appId: host.exp.exponent
+---
 - tapOn:
-    id: "dashboard-recent-row-smoke-expense-updated"
-- assertVisible: "Edit Transaction"
-- scrollUntilVisible:
-    element:
-      id: "edit-transaction-delete"
-    direction: DOWN
-- assertVisible:
-    id: "edit-transaction-delete"
-- tapOn:
-    id: "edit-transaction-delete"
-- tapOn: "Delete"
-- assertVisible: "Dashboard"
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-delete-smoke-transaction"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke transaction deleted successfully"
+    commands:
+      - assertVisible: "Smoke transaction deleted successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke transaction already deleted"
+    commands:
+      - assertVisible: "Smoke transaction already deleted"
 
 - tapOn:
     id: "tab-transactions"
 - assertVisible: "Transactions"
-- assertNotVisible: "Smoke expense updated"
+- assertNotVisible:
+    id: "transaction-row-smoke-expense-updated"
+- assertNotVisible:
+    id: "transaction-row-smoke-expense"
 
 - tapOn:
     id: "tab-dashboard"
 - assertVisible: "Dashboard"
-- tapOn:
-    id: "tab-accounts"
-- assertVisible: "Accounts"
-- tapOn:
-    id: "tab-transactions"
-- assertVisible: "Transactions"
+- assertNotVisible:
+    id: "dashboard-recent-row-smoke-expense-updated"

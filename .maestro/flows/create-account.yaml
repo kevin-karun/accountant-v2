@@ -1,19 +1,9 @@
+appId: host.exp.exponent
+---
 - tapOn:
-    id: "tab-accounts"
-- assertVisible: "Accounts"
-- tapOn: "reset-smoke-state"
-- waitForAnimationToEnd
-- assertVisible: "Smoke state reset successfully"
-- tapOn:
-    id: "tab-accounts"
-- assertVisible: "Accounts"
-- runFlow:
-    when:
-      visible: "New Account"
-    commands:
-      - tapOn: "New Account"
-- assertVisible: "Create New Account"
-- tapOn: "create-smoke-account"
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-create-smoke-account"
 - waitForAnimationToEnd
 - runFlow:
     when:

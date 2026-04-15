@@ -1,3 +1,5 @@
+appId: host.exp.exponent
+---
 - tapOn:
     id: "tab-dashboard"
 - assertVisible: "Dashboard"

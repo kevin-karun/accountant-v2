@@ -7,6 +7,12 @@ appId: host.exp.Exponent
     commands:
       - tapOn: "app"
 - assertVisible: "Dashboard"
+- tapOn:
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-reset-smoke-state"
+- waitForAnimationToEnd
+- assertVisible: "Smoke state reset successfully"
 - runFlow: flows/create-account.yaml
 - runFlow: flows/create-transaction.yaml
 - runFlow: flows/update-transaction.yaml
