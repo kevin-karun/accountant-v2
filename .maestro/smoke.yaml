@@ -1,0 +1,71 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "app"
+    commands:
+      - tapOn: "app"
+- assertVisible: "Dashboard"
+- tapOn: "tab-accounts"
+- assertVisible: "Accounts"
+- runFlow:
+    when:
+      visible: "New Account"
+    commands:
+      - tapOn: "New Account"
+- assertVisible: "Create New Account"
+- tapOn: "create-smoke-account"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke account created successfully"
+    commands:
+      - assertVisible: "Smoke account created successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke account already exists"
+    commands:
+      - assertVisible: "Smoke account already exists"
+
+- tapOn: "tab-add"
+- assertVisible: "Add Transaction"
+- tapOn: "Amount"
+- inputText: "25"
+- tapOn: "Description"
+- inputText: "Smoke expense"
+- tapOn: "Add Transaction"
+- assertVisible: "Transaction created successfully"
+
+- tapOn: "Transactions"
+- assertVisible: "Transactions"
+- tapOn: "Smoke expense"
+- assertVisible: "Edit Transaction"
+- tapOn: "Description"
+- eraseText
+- inputText: "Smoke expense updated"
+- tapOn: "Save Changes"
+- assertVisible: "Transactions"
+- assertVisible: "Smoke expense updated"
+
+- tapOn: "Dashboard"
+- assertVisible: "Dashboard"
+- assertVisible: "Smoke expense updated"
+
+- tapOn: "Smoke expense updated"
+- assertVisible: "Edit Transaction"
+- tapOn: "Delete Transaction"
+- tapOn: "Delete"
+- assertVisible: "Dashboard"
+
+- tapOn: "Transactions"
+- assertVisible: "Transactions"
+- assertNotVisible: "Smoke expense updated"
+
+- tapOn: "Dashboard"
+- assertVisible: "Dashboard"
+- tapOn: "tab-accounts"
+- assertVisible: "Accounts"
+- tapOn: "Transactions"
+- assertVisible: "Transactions"

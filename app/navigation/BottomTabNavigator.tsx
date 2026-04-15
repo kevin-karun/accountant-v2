@@ -52,6 +52,8 @@ export default function BottomTabNavigator() {
         component={AddTransactionScreen}
         options={{
           tabBarLabel: 'Add',
+          tabBarButtonTestID: 'tab-add',
+          tabBarAccessibilityLabel: 'tab-add',
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons
               name={focused ? 'add-circle' : 'add-circle-outline'}
@@ -61,7 +63,14 @@ export default function BottomTabNavigator() {
           ),
         }}
       />
-      <Tab.Screen name="Accounts" component={AccountsScreen} />
+      <Tab.Screen
+        name="Accounts"
+        component={AccountsScreen}
+        options={{
+          tabBarButtonTestID: 'tab-accounts',
+          tabBarAccessibilityLabel: 'tab-accounts',
+        }}
+      />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
