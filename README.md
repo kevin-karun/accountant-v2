@@ -37,3 +37,20 @@ Checkpoint 1 — App Shell Setup
 ## Next Milestone
 
 App shell with navigation and screens
+
+## UI Smoke Tests
+
+Maestro smoke coverage now lives in `.maestro/`.
+
+Run:
+
+```bash
+cd app
+npm start
+```
+
+In another terminal:
+
+```bash
+maestro test .maestro/smoke.yaml
+```

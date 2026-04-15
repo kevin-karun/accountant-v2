@@ -13,6 +13,14 @@ export async function createTransaction(
   description: string,
   date: string
 ): Promise<Transaction> {
+  console.log('transactionsService.createTransaction called with:', {
+    accountId,
+    type,
+    amount,
+    description,
+    date,
+  });
+
   const db = databaseService.getDatabase();
   const now = new Date().toISOString();
   const id = generateTransactionId();
@@ -28,11 +36,22 @@ export async function createTransaction(
     updated_at: now,
   };
 
-  await db.runAsync(
-    `INSERT INTO transactions (id, account_id, type, amount, description, date, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [id, accountId, type, amount, description, date, now, now]
-  );
+  try {
+    const result = await db.runAsync(
+      `INSERT INTO transactions (id, account_id, type, amount, description, date, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, accountId, type, amount, description, date, now, now]
+    );
+
+    console.log('transactionsService.createTransaction insert result:', {
+      id,
+      changes: result.changes,
+      lastInsertRowId: result.lastInsertRowId,
+    });
+  } catch (error) {
+    console.error('transactionsService.createTransaction failed:', error);
+    throw error;
+  }
 
   return transaction;
 }

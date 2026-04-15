@@ -163,6 +163,37 @@
 - ✅ Preserved Dashboard and Transactions refresh via existing focus-based reload pattern
 - ✅ npm run verify passes
 
+## Checkpoint 7.1 — Edit Escape & Form Scroll Reset ✅
+
+- ✅ Added a visible non-destructive exit path for transaction edit mode
+- ✅ Cancel exits edit mode, clears stale edit state, and returns to the originating screen
+- ✅ Add Transaction resets scroll to top on tab revisit
+- ✅ Accounts resets scroll to top on tab revisit
+- ✅ npm run verify passes
+
+## Checkpoint 7.1 — Cancel Button Polish & UI Smoke Automation ✅
+
+- ✅ Polished the Add Transaction edit-mode Cancel button alignment and hierarchy
+- ✅ Added a lightweight Maestro smoke suite for core account and transaction flows
+- ✅ Documented how to run the smoke suite
+- ✅ Kept app runtime dependencies unchanged
+- ✅ npm run verify passes
+
+## Checkpoint 7.1 — Expo Go Smoke Launch + Add Picker Focus Refresh ✅
+
+- ✅ Stabilized Maestro startup flow for the Expo Go home-screen case
+- ✅ Refreshed Add Transaction accounts on focus so new accounts appear in the picker
+- ✅ Preserved existing transaction and dashboard behaviors
+- ✅ npm run verify passes
+
+## Checkpoint 7.1 — Add Picker Neutral Default + Maestro Selector Stability ✅
+
+- ✅ Reset Add Transaction create mode to a neutral `Select account` picker state
+- ✅ Preserved edit-mode account prefill
+- ✅ Added a stable Accounts form selector for Maestro
+- ✅ Updated the Maestro smoke flow to use the stable selector
+- ✅ npm run verify passes
+
 ## Future
 
 - Transaction logic

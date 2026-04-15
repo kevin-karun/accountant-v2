@@ -46,7 +46,14 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Transactions" component={TransactionsScreen} />
+      <Tab.Screen
+        name="Transactions"
+        component={TransactionsScreen}
+        options={{
+          tabBarButtonTestID: 'tab-transactions',
+          tabBarAccessibilityLabel: 'tab-transactions',
+        }}
+      />
       <Tab.Screen
         name="Add Transaction"
         component={AddTransactionScreen}

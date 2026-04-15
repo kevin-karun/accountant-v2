@@ -114,6 +114,21 @@
 - AddTransactionScreen consumes the edit params once, pre-fills the form, and clears the params so the Add tab does not stay stuck in edit mode
 - Save uses `updateTransaction()` and delete uses the existing confirmation pattern with `deleteTransaction()`
 - After update or delete, navigation returns to the originating screen so the app can rely on existing `useFocusEffect` reloads for synchronization
+- Edit mode also exposes a visible `Cancel` action near the primary button so users can leave edit mode without saving
+- Add Transaction create mode uses a neutral `Select account` placeholder rather than auto-selecting or retaining a stale prior account after tab revisit
+
+## Form Tab Scroll Behavior
+
+- Add Transaction and Accounts both reset their scroll position to the top when their tabs regain focus
+- This behavior is intentionally scoped to form-heavy tabs and is not applied globally across the app
+
+## UI Smoke Automation
+
+- Maestro is used as a lightweight UI smoke layer without adding app runtime packages
+- Smoke coverage is intentionally narrow and practical: launch, tab switching, account creation, duplicate prevention, transaction create/edit/delete, and dashboard refresh
+- Smoke flows live in repo tooling files under `.maestro/` and are documented rather than wired into runtime code
+- The Maestro bootstrap flow tolerates Expo Go landing on its home screen first by tapping the recent `app` project card before asserting app UI
+- Stable element selectors are preferred for the smoke flow where visible-text targeting is brittle
 
 ## Testing
 

@@ -1,5 +1,37 @@
 # Changelog
 
+## Checkpoint 7.1 - Add Picker Neutral Default + Maestro Selector Stability
+
+- Add Transaction create mode now resets the account picker to a neutral `Select account` placeholder instead of keeping a stale prior selection
+- Transaction edit mode still preloads the correct account
+- Added a stable `testID` to the Accounts name input and updated the Maestro smoke flow to target that selector
+- Kept account refresh-on-focus behavior intact so newly created accounts still appear in the picker
+- npm run verify passes
+
+## Checkpoint 7.1 - Expo Go Smoke Launch + Add Picker Focus Refresh
+
+- Updated the Maestro smoke entry flow to handle Expo Go home by tapping the recent `app` project card when needed
+- Add Transaction now refreshes its account list whenever the tab regains focus, so newly created accounts appear in the picker without restart
+- Kept existing transaction edit/delete flows, compact form layout, and focus-based refresh behavior intact
+- npm run verify passes
+
+## Checkpoint 7.1 - Cancel Button Polish & UI Smoke Automation
+
+- Corrected Add Transaction edit-mode action row so Save and Cancel align cleanly as primary and secondary actions
+- Added a lightweight Maestro smoke suite covering launch, account creation, duplicate prevention, transaction create/edit/delete, dashboard refresh, and tab switching
+- Added concise run documentation for the smoke suite in `README.md` and `.maestro/README.md`
+- Kept app runtime dependencies unchanged
+- npm run verify passes
+
+## Checkpoint 7.1 - Edit Escape & Form Scroll Reset
+
+- Added a visible `Cancel` action in transaction edit mode next to `Save Changes`
+- Cancel now exits edit mode, clears loaded transaction state, and returns to the originating screen
+- Add Transaction now resets scroll to top whenever the tab regains focus
+- Accounts now resets scroll to top whenever the tab regains focus
+- Preserved transaction save/delete flows, inline validation, and inline success behavior
+- npm run verify passes
+
 ## Checkpoint 7.0 - Transactions Edit/Delete Completion
 
 - Added transaction edit mode to Add Transaction using route params and a local `mode` flag

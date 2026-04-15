@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
-import { createTransaction, updateTransaction, deleteTransaction } from '../database/transactionsService';
+import { createTransaction, updateTransaction, deleteTransaction, getTransactionsByAccount } from '../database/transactionsService';
 import { getAllAccounts } from '../database/accountsService';
 import { Account, Transaction } from '../database/types';
 
@@ -38,14 +38,20 @@ export default function AddTransactionScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
   const params = (route.params as AddTransactionRouteParams | undefined) ?? {};
+  const smokeAccount = accounts.find(account => {
+    return account.name.trim().toLowerCase() === 'smoke account' && account.type === 'bank';
+  });
+
+  const handleAccountChange = useCallback((accountId: string) => {
+    console.log('AddTransactionScreen account selection changed:', accountId);
+    setSelectedAccountId(accountId);
+    setSuccessMessage('');
+  }, []);
 
   const loadAccounts = useCallback(async () => {
     try {
       const data = await getAllAccounts();
       setAccounts(data);
-      if (data.length > 0 && !selectedAccountId) {
-        setSelectedAccountId(data[0].id);
-      }
     } catch (error) {
       console.error('Failed to load accounts:', error);
       Alert.alert('Error', 'Failed to load accounts');
@@ -81,6 +87,7 @@ export default function AddTransactionScreen() {
     setMode('create');
     setEditingTransactionId(null);
     setReturnToScreen(null);
+    setSelectedAccountId('');
     setAmount('');
     setDescription('');
     setDate(new Date().toISOString().split('T')[0]);
@@ -100,43 +107,88 @@ export default function AddTransactionScreen() {
     navigation.navigate('Transactions');
   }, [navigation, resetForm, returnToScreen]);
 
+  const handleExitEditMode = useCallback(() => {
+    navigateAfterEdit();
+  }, [navigateAfterEdit]);
+
   useFocusEffect(
     useCallback(() => {
+      loadAccounts();
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+
       return () => {
         if (mode === 'edit') {
           resetForm();
         }
       };
-    }, [mode, resetForm])
+    }, [loadAccounts, mode, resetForm])
   );
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!selectedAccountId) {
+      console.log('BLOCKED: missing accountId');
       newErrors.account = 'Please select an account';
     }
 
     if (amount.trim() === '' || isNaN(parseFloat(amount))) {
+      console.log('BLOCKED: missing amount');
       newErrors.amount = 'Amount must be a valid number';
     }
 
     if (!description.trim()) {
+      console.log('BLOCKED: missing description');
       newErrors.description = 'Description is required';
     }
 
     if (!date.trim()) {
+      console.log('BLOCKED: missing date');
       newErrors.date = 'Date is required';
     }
 
+    const isValid = Object.keys(newErrors).length === 0;
+
+    console.log('AddTransactionScreen validateForm:', {
+      selectedAccountId,
+      type,
+      amount,
+      description,
+      date,
+      errors: newErrors,
+      isValid,
+    });
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return isValid;
   };
 
   const handleCreateTransaction = async () => {
-    if (!validateForm()) {
+    console.log('ADD TRANSACTION SUBMIT PRESSED');
+    console.log('SUBMIT BUTTON PRESSED');
+    console.log('FORM STATE:', {
+      accountId: selectedAccountId,
+      type,
+      amount,
+      description,
+    });
+
+    const isValid = validateForm();
+
+    if (!isValid) {
+      console.log('AddTransactionScreen submit blocked by validation');
       return;
     }
+
+    console.log('PASSING VALIDATION → creating transaction');
+    console.log('AddTransactionScreen submit selectedAccountId:', selectedAccountId);
+    console.log('AddTransactionScreen create payload:', {
+      accountId: selectedAccountId,
+      type,
+      amount: parseFloat(amount),
+      description,
+      date,
+    });
 
     setLoading(true);
     try {
@@ -154,6 +206,45 @@ export default function AddTransactionScreen() {
     } catch (error) {
       console.error('Failed to create transaction:', error);
       Alert.alert('Error', 'Failed to create transaction');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateSmokeExpense = async () => {
+    if (!smokeAccount) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const transactions = await getTransactionsByAccount(smokeAccount.id);
+      const smokeExpenseExists = transactions.some((transaction) => {
+        return transaction.type === 'expense'
+          && transaction.amount === 25
+          && transaction.description === 'Smoke expense';
+      });
+
+      if (smokeExpenseExists) {
+        setSuccessMessage('Smoke expense already exists');
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+        return;
+      }
+
+      await createTransaction(
+        smokeAccount.id,
+        'expense',
+        25,
+        'Smoke expense',
+        new Date().toISOString().split('T')[0]
+      );
+
+      resetForm();
+      setSuccessMessage('Smoke expense created successfully');
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    } catch (error) {
+      console.error('Failed to create smoke expense:', error);
+      Alert.alert('Error', 'Failed to create smoke expense');
     } finally {
       setLoading(false);
     }
@@ -224,28 +315,52 @@ export default function AddTransactionScreen() {
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Transaction Details</Text>
+        {__DEV__ && mode === 'create' && smokeAccount ? (
+          <TouchableOpacity
+            testID="create-smoke-expense"
+            accessibilityLabel="create-smoke-expense"
+            style={styles.smokeHelperButton}
+            onPress={handleCreateSmokeExpense}
+            disabled={loading}
+          >
+            <Text style={styles.smokeHelperButtonText}>Create Smoke Expense Transaction</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Account</Text>
           <View style={styles.pickerContainer}>
             <Picker
+              testID="account-picker"
+              accessibilityLabel="account-picker"
               style={styles.picker}
               selectedValue={selectedAccountId}
               onValueChange={(itemValue) => {
-                setSelectedAccountId(itemValue);
-                setSuccessMessage('');
+                handleAccountChange(itemValue);
               }}
               enabled={!loading}
-            >
-              {accounts.map((account) => (
-                <Picker.Item
-                  key={account.id}
+          >
+            <Picker.Item label="Select account" value="" />
+            {accounts.map((account) => (
+              <Picker.Item
+                key={account.id}
                   label={`${account.name} (${account.type.replace('_', ' ')})`}
                   value={account.id}
                 />
               ))}
             </Picker>
           </View>
+          {__DEV__ && smokeAccount ? (
+            <TouchableOpacity
+              testID="account-option-smoke-account"
+              accessibilityLabel="account-option-smoke-account"
+              style={styles.smokeHelperButton}
+              onPress={() => handleAccountChange(smokeAccount.id)}
+              disabled={loading}
+            >
+              <Text style={styles.smokeHelperButtonText}>Smoke Account (bank)</Text>
+            </TouchableOpacity>
+          ) : null}
           {errors.account && <Text style={styles.errorText}>{errors.account}</Text>}
         </View>
 
@@ -270,10 +385,13 @@ export default function AddTransactionScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
+            testID="add-transaction-amount-input"
+            accessibilityLabel="add-transaction-amount-input"
             style={styles.input}
             placeholder="0.00"
             value={amount}
             onChangeText={(value) => {
+              console.log('ADD TX AMOUNT CHANGED:', value);
               setAmount(value);
               setSuccessMessage('');
             }}
@@ -287,10 +405,13 @@ export default function AddTransactionScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Description</Text>
           <TextInput
+            testID="add-transaction-description-input"
+            accessibilityLabel="add-transaction-description-input"
             style={styles.input}
             placeholder="Transaction description"
             value={description}
             onChangeText={(value) => {
+              console.log('ADD TX DESCRIPTION CHANGED:', value);
               setDescription(value);
               setSuccessMessage('');
             }}
@@ -316,29 +437,51 @@ export default function AddTransactionScreen() {
           {errors.date && <Text style={styles.errorText}>{errors.date}</Text>}
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={mode === 'edit' ? handleSaveTransaction : handleCreateTransaction}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>
-              {mode === 'edit' ? 'Save Changes' : 'Add Transaction'}
-            </Text>
-          )}
-        </TouchableOpacity>
-
         {mode === 'edit' ? (
+          <View style={styles.editActions}>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonRowAction, styles.buttonFlex, styles.buttonSpacing, loading && styles.buttonDisabled]}
+                onPress={handleSaveTransaction}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Save Changes</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.secondaryButton, styles.buttonFlex, loading && styles.buttonDisabled]}
+                onPress={handleExitEditMode}
+                disabled={loading}
+              >
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={[styles.deleteButton, loading && styles.buttonDisabled]}
+              onPress={handleDeleteTransaction}
+              disabled={loading}
+            >
+              <Text style={styles.deleteButtonText}>Delete Transaction</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
           <TouchableOpacity
-            style={[styles.deleteButton, loading && styles.buttonDisabled]}
-            onPress={handleDeleteTransaction}
+            testID="add-transaction-submit"
+            accessibilityLabel="add-transaction-submit"
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleCreateTransaction}
             disabled={loading}
           >
-            <Text style={styles.deleteButtonText}>Delete Transaction</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Add Transaction</Text>
+            )}
           </TouchableOpacity>
-        ) : null}
+        )}
       </View>
     </ScrollView>
   );
@@ -402,6 +545,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fafafa',
   },
+  smokeHelperButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#f4f4f4',
+    borderWidth: 1,
+    borderColor: '#d6d6d6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  smokeHelperButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#555',
+  },
   picker: {
     minHeight: 44,
   },
@@ -412,11 +570,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  editActions: {
+    marginTop: 8,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+  },
+  buttonRowAction: {
+    marginTop: 0,
+  },
+  buttonFlex: {
+    flex: 1,
+  },
+  buttonSpacing: {
+    marginRight: 8,
+  },
   buttonDisabled: {
     backgroundColor: '#b3b3b3',
   },
   buttonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#c8c8c8',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: '#333',
     fontSize: 16,
     fontWeight: '600',
   },

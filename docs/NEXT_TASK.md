@@ -1,12 +1,12 @@
-# Next Task — Checkpoint 7.1: Transactions Polish Follow-Up
+# Next Task — Checkpoint 7.2: Transactions Polish Follow-Up
 
 **Last Updated:** April 14, 2026  
-**Current Focus:** Checkpoint 7.1  
-**Target Checkpoint:** Checkpoint 7.1  
+**Current Focus:** Checkpoint 7.2  
+**Target Checkpoint:** Checkpoint 7.2  
 **Objective:** Transactions Polish Follow-Up  
 **Estimated Scope:** Tighten any remaining transaction edit UX edges before moving on to bills planning
 
-Checkpoint 7.0 completed transaction lifecycle support with edit and delete using the existing Add Transaction screen.
+Checkpoint 7.1 completed visible edit escape, form-tab scroll reset, and lightweight UI smoke automation.
 
 ## In Scope
 1. Review transaction edit flow for any remaining UX rough edges
@@ -28,6 +28,6 @@ Checkpoint 7.0 completed transaction lifecycle support with edit and delete usin
 
 ---
 
-**After Completing Checkpoint 7.1:**
+**After Completing Checkpoint 7.2:**
 - Update CHANGELOG.md, TASKS.md, DECISIONS.md, docs/STATE.md, and docs/NEXT_TASK.md
 - Continue with feature work in an incremental, low-risk way

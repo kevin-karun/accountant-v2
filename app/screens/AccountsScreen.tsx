@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,14 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { createAccount, getAllAccounts, updateAccount, deleteAccount, getAccountBalance } from '../database/accountsService';
 import { Account } from '../database/types';
 
 export default function AccountsScreen() {
   type AccountFormType = Account['type'] | '';
+  const scrollViewRef = useRef<ScrollView | null>(null);
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [balances, setBalances] = useState<Record<string, number>>({});
@@ -49,6 +51,12 @@ export default function AccountsScreen() {
   useEffect(() => {
     loadAccounts();
   }, [loadAccounts]);
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, [])
+  );
 
   const resetForm = () => {
     setName('');
@@ -214,6 +222,36 @@ export default function AccountsScreen() {
     setSuccessMessage('');
   };
 
+  const handleAccountTypeChange = (value: AccountFormType) => {
+    console.log('ACCOUNT TYPE SET:', value);
+    setType(value);
+    setSuccessMessage('');
+    setTouchedFields(prev => ({ ...prev, type: true }));
+  };
+
+  const handleCreateSmokeAccount = async () => {
+    const existingSmokeAccount = accounts.find(account => {
+      return account.name.trim().toLowerCase() === 'smoke account' && account.type === 'bank';
+    });
+
+    if (existingSmokeAccount) {
+      setSuccessMessage('Smoke account already exists');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await createAccount('Smoke Account', 'bank', 100);
+      await loadAccounts();
+      setSuccessMessage('Smoke account created successfully');
+    } catch (error) {
+      console.error('Failed to create smoke account:', error);
+      Alert.alert('Error', 'Failed to create smoke account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderAccountItem = ({ item }: { item: Account }) => (
     <TouchableOpacity
       style={[
@@ -229,7 +267,11 @@ export default function AccountsScreen() {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      ref={scrollViewRef}
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       <Text style={styles.title}>Accounts</Text>
       {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
 
@@ -249,7 +291,37 @@ export default function AccountsScreen() {
             </TouchableOpacity>
           )}
         </View>
+        {__DEV__ ? (
+          <View style={styles.automationRow}>
+            <TouchableOpacity
+              testID="create-smoke-account"
+              accessibilityLabel="create-smoke-account"
+              style={[styles.automationButton, styles.automationButtonSpacing]}
+              onPress={handleCreateSmokeAccount}
+            >
+              <Text style={styles.automationButtonText}>Create Smoke Bank Account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="account-type-option-bank"
+              accessibilityLabel="account-type-option-bank"
+              style={[styles.automationButton, styles.automationButtonSpacing]}
+              onPress={() => handleAccountTypeChange('bank')}
+            >
+              <Text style={styles.automationButtonText}>Set Bank</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="account-type-option-cash"
+              accessibilityLabel="account-type-option-cash"
+              style={styles.automationButton}
+              onPress={() => handleAccountTypeChange('cash')}
+            >
+              <Text style={styles.automationButtonText}>Set Cash</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
         <TextInput
+          accessibilityLabel="account-name-input"
+          testID="account-name-input"
           style={styles.input}
           placeholder="Account name"
           value={name}
@@ -263,22 +335,24 @@ export default function AccountsScreen() {
         />
         {visibleAccountErrors.name && <Text style={styles.errorText}>{visibleAccountErrors.name}</Text>}
 
-        <Picker
-          style={styles.picker}
-          selectedValue={type}
-          onValueChange={(itemValue) => {
-            setType(itemValue as AccountFormType);
-            setSuccessMessage('');
-            setTouchedFields(prev => ({ ...prev, type: true }));
-          }}
-          enabled={!loading}
-        >
-          <Picker.Item label="Select account type" value="" />
-          <Picker.Item label="Bank" value="bank" />
-          <Picker.Item label="Credit Card" value="credit_card" />
-          <Picker.Item label="Cash" value="cash" />
-          <Picker.Item label="Other" value="other" />
-        </Picker>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            testID="account-type-picker"
+            accessibilityLabel="account-type-picker"
+            style={styles.picker}
+            selectedValue={type}
+            onValueChange={(itemValue) => {
+              handleAccountTypeChange(itemValue as AccountFormType);
+            }}
+            enabled={!loading}
+          >
+            <Picker.Item label="Select account type" value="" />
+            <Picker.Item label="Bank" value="bank" />
+            <Picker.Item label="Credit Card" value="credit_card" />
+            <Picker.Item label="Cash" value="cash" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
+        </View>
         {visibleAccountErrors.type && <Text style={styles.errorText}>{visibleAccountErrors.type}</Text>}
 
         <TextInput
@@ -430,6 +504,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 12,
     minHeight: 44,
+  },
+  pickerWrapper: {
+    marginBottom: 12,
+  },
+  automationRow: {
+    flexDirection: 'column',
+    marginBottom: 12,
+  },
+  automationButton: {
+    backgroundColor: '#f4f4f4',
+    borderWidth: 1,
+    borderColor: '#d6d6d6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  automationButtonSpacing: {
+    marginBottom: 8,
+  },
+  automationButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
   },
   button: {
     paddingVertical: 12,

@@ -1,7 +1,7 @@
 # Project State — Accountant V2
 
 **Last Updated:** April 14, 2026  
-**Current Checkpoint:** 7.0 (Transactions Edit/Delete Completion)
+**Current Checkpoint:** 7.1 (Edit Escape & Form Scroll Reset)
 
 ## Completed Checkpoints
 
@@ -162,11 +162,43 @@
 - Transaction create mode behavior, inline validation, and inline success feedback remain intact
 - npm run verify passes (9/9 tests)
 
+### Checkpoint 7.1: Edit Escape & Form Scroll Reset
+- Added a visible Cancel action in transaction edit mode to provide a clear escape path
+- Cancel clears local edit state and returns to the originating screen without saving
+- Add Transaction resets to the top when its tab regains focus
+- Accounts resets to the top when its tab regains focus
+- Existing save/delete flows and inline feedback behavior remain intact
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 7.1: Cancel Button Polish & UI Smoke Automation
+- Polished the Add Transaction edit-mode action row so Save and Cancel align more cleanly
+- Added a lightweight Maestro smoke suite for core account, transaction, dashboard, and tab-switching flows
+- Documented smoke test run steps in `README.md` and `.maestro/README.md`
+- No app runtime packages were added
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 7.1: Expo Go Smoke Launch + Add Picker Focus Refresh
+- Maestro smoke startup now handles the Expo Go home-screen case by tapping the recent `app` card when needed
+- Add Transaction reloads accounts on focus so newly created accounts show up in the picker after returning to the Add tab
+- Existing transaction edit/delete behavior and dashboard refresh behavior remain intact
+- npm run verify passes (9/9 tests)
+
+### Checkpoint 7.1: Add Picker Neutral Default + Maestro Selector Stability
+- Add Transaction create mode now returns to a neutral `Select account` picker state instead of keeping a stale selected account
+- Edit mode still preloads the transaction's account correctly
+- Added a stable Accounts name-input selector for Maestro and updated the smoke flow to use it
+- Existing account CRUD, transaction flows, and dashboard refresh behavior remain intact
+- npm run verify passes (9/9 tests)
+
 ## Current App Status
 - Accounts CRUD: complete with create, read, update, delete
 - Transactions lifecycle: create, read, update, delete implemented
-- Transaction form UX: inline validation and inline success feedback are both in place
+- Transaction form UX: inline validation, inline success feedback, and visible edit escape are in place
 - Add Transaction layout: tighter and less scroll-heavy, with success auto-scroll
+- Add Transaction data refresh: account picker updates on focus
+- Add Transaction create mode: neutral account picker placeholder by default
+- UI smoke automation: lightweight Maestro flow available for core regression coverage
+- Form tabs: Add Transaction and Accounts reset to top on revisit
 - Dashboard: implemented as a summary-first screen with total balance, 7-day net change, 3 recent transactions, and a 3-account preview
 - Dashboard startup: stable with database-ready gating before initial tab mount
 - Inline validation: stable in Accounts and Transactions forms, with progressive account error sequencing

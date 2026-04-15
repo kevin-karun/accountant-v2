@@ -26,6 +26,12 @@ export default function TransactionsScreen() {
         getAllTransactions(),
         getAllAccounts(),
       ]);
+
+      console.log('TransactionsScreen loadData result:', {
+        count: transactionsData.length,
+        firstThree: transactionsData.slice(0, 3),
+      });
+
       setTransactions(transactionsData);
       setAccounts(accountsData);
     } catch (error) {
