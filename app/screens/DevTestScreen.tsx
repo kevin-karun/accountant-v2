@@ -11,6 +11,7 @@ import {
   applySmokeTransactionUpdate,
   deleteSmokeTransaction,
   ensureSmokeAccount,
+  ensureSmokeIncomeTransaction,
   ensureSmokeTransaction,
   resetSmokeState,
 } from '../testing/smokeTestService';
@@ -19,6 +20,7 @@ type ActionKey =
   | 'reset'
   | 'createAccount'
   | 'createTransaction'
+  | 'createIncomeTransaction'
   | 'updateTransaction'
   | 'deleteTransaction';
 
@@ -93,6 +95,20 @@ export default function DevTestScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.buttonText}>Create Smoke Transaction</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          testID="dev-create-smoke-income-transaction"
+          accessibilityLabel="dev-create-smoke-income-transaction"
+          style={styles.button}
+          onPress={() => runAction('createIncomeTransaction', ensureSmokeIncomeTransaction)}
+          disabled={loadingAction !== null}
+        >
+          {loadingAction === 'createIncomeTransaction' ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Create Smoke Income Transaction</Text>
           )}
         </TouchableOpacity>
 

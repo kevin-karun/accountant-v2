@@ -82,6 +82,8 @@ export default function TransactionsScreen() {
           ? 'transaction-row-smoke-expense'
           : item.description === 'Smoke expense updated'
             ? 'transaction-row-smoke-expense-updated'
+            : item.description === 'Smoke income'
+              ? 'transaction-row-smoke-income'
             : undefined
       }
       accessibilityLabel={
@@ -89,6 +91,8 @@ export default function TransactionsScreen() {
           ? 'transaction-row-smoke-expense'
           : item.description === 'Smoke expense updated'
             ? 'transaction-row-smoke-expense-updated'
+            : item.description === 'Smoke income'
+              ? 'transaction-row-smoke-income'
             : undefined
       }
       style={styles.transactionItem}

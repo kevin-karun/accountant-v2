@@ -1,0 +1,65 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "app"
+    commands:
+      - tapOn: "app"
+- assertVisible: "Dashboard"
+- tapOn:
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-reset-smoke-state"
+- waitForAnimationToEnd
+- assertVisible: "Smoke state reset successfully"
+- tapOn: "dev-create-smoke-account"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke account created successfully"
+    commands:
+      - assertVisible: "Smoke account created successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke account already exists"
+    commands:
+      - assertVisible: "Smoke account already exists"
+
+- tapOn: "dev-create-smoke-income-transaction"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke income created successfully"
+    commands:
+      - assertVisible: "Smoke income created successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke income already exists"
+    commands:
+      - assertVisible: "Smoke income already exists"
+
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "transaction-row-smoke-income"
+
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "Dashboard"
+- assertVisible:
+    id: "dashboard-recent-row-smoke-income"
+- assertVisible: "$140.00"
+- assertVisible: "+$40.00 (last 7 days)"
+- scrollUntilVisible:
+    element:
+      id: "dashboard-account-row-smoke-account"
+    direction: DOWN
+- assertVisible:
+    id: "dashboard-account-row-smoke-account"
+- assertVisible:
+    id: "dashboard-account-balance-smoke-account"

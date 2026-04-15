@@ -19,14 +19,25 @@ const SMOKE_ACCOUNT_OPENING_BALANCE = 100;
 const SMOKE_TRANSACTION_AMOUNT = 25;
 const SMOKE_TRANSACTION_DESCRIPTION = 'Smoke expense';
 const SMOKE_TRANSACTION_UPDATED_DESCRIPTION = 'Smoke expense updated';
+const SMOKE_INCOME_TRANSACTION_AMOUNT = 40;
+const SMOKE_INCOME_TRANSACTION_DESCRIPTION = 'Smoke income';
 
 function isSmokeTransaction(transaction: Transaction) {
-  return transaction.type === 'expense'
-    && transaction.amount === SMOKE_TRANSACTION_AMOUNT
-    && (
-      transaction.description === SMOKE_TRANSACTION_DESCRIPTION
-      || transaction.description === SMOKE_TRANSACTION_UPDATED_DESCRIPTION
-    );
+  return (
+    (
+      transaction.type === 'expense'
+      && transaction.amount === SMOKE_TRANSACTION_AMOUNT
+      && (
+        transaction.description === SMOKE_TRANSACTION_DESCRIPTION
+        || transaction.description === SMOKE_TRANSACTION_UPDATED_DESCRIPTION
+      )
+    )
+    || (
+      transaction.type === 'income'
+      && transaction.amount === SMOKE_INCOME_TRANSACTION_AMOUNT
+      && transaction.description === SMOKE_INCOME_TRANSACTION_DESCRIPTION
+    )
+  );
 }
 
 async function ensureSingleSmokeAccount(): Promise<{ account: Account; created: boolean }> {
@@ -138,6 +149,36 @@ export async function ensureSmokeTransaction(): Promise<string> {
   );
 
   return 'Smoke expense created successfully';
+}
+
+export async function ensureSmokeIncomeTransaction(): Promise<string> {
+  const { account } = await ensureSingleSmokeAccount();
+  const transactions = await getTransactionsByAccount(account.id);
+  const smokeIncomeTransactions = transactions.filter((transaction) => {
+    return transaction.type === 'income'
+      && transaction.amount === SMOKE_INCOME_TRANSACTION_AMOUNT
+      && transaction.description === SMOKE_INCOME_TRANSACTION_DESCRIPTION;
+  });
+
+  if (smokeIncomeTransactions.length > 0) {
+    const [, ...duplicateTransactions] = smokeIncomeTransactions;
+
+    for (const duplicateTransaction of duplicateTransactions) {
+      await deleteTransaction(duplicateTransaction.id);
+    }
+
+    return 'Smoke income already exists';
+  }
+
+  await createTransaction(
+    account.id,
+    'income',
+    SMOKE_INCOME_TRANSACTION_AMOUNT,
+    SMOKE_INCOME_TRANSACTION_DESCRIPTION,
+    new Date().toISOString().split('T')[0]
+  );
+
+  return 'Smoke income created successfully';
 }
 
 export async function applySmokeTransactionUpdate(): Promise<string> {

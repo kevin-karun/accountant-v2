@@ -170,11 +170,15 @@ export default function DashboardScreen() {
               testID={
                 transaction.description === 'Smoke expense updated'
                   ? 'dashboard-recent-row-smoke-expense-updated'
+                  : transaction.description === 'Smoke income'
+                    ? 'dashboard-recent-row-smoke-income'
                   : undefined
               }
               accessibilityLabel={
                 transaction.description === 'Smoke expense updated'
                   ? 'dashboard-recent-row-smoke-expense-updated'
+                  : transaction.description === 'Smoke income'
+                    ? 'dashboard-recent-row-smoke-income'
                   : undefined
               }
               style={styles.listItem}
@@ -222,12 +226,23 @@ export default function DashboardScreen() {
         ) : (
           <>
             {accountPreview.map(({ account, balance }) => (
-              <View key={account.id} style={styles.listItem}>
+              <View
+                key={account.id}
+                testID={account.name === 'Smoke Account' ? 'dashboard-account-row-smoke-account' : undefined}
+                accessibilityLabel={account.name === 'Smoke Account' ? 'dashboard-account-row-smoke-account' : undefined}
+                style={styles.listItem}
+              >
                 <View style={styles.listItemHeader}>
                   <Text style={styles.itemTitle}>
                     {account.name} · {account.type.replace('_', ' ')}
                   </Text>
-                  <Text style={styles.itemAmount}>{formatCurrency(balance)}</Text>
+                  <Text
+                    testID={account.name === 'Smoke Account' ? 'dashboard-account-balance-smoke-account' : undefined}
+                    accessibilityLabel={account.name === 'Smoke Account' ? 'dashboard-account-balance-smoke-account' : undefined}
+                    style={styles.itemAmount}
+                  >
+                    {formatCurrency(balance)}
+                  </Text>
                 </View>
               </View>
             ))}
