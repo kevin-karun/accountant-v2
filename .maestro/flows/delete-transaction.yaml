@@ -1,3 +1,4 @@
+- runFlow: update-transaction.yaml
 - tapOn:
     id: "dashboard-recent-row-smoke-expense-updated"
 - assertVisible: "Edit Transaction"

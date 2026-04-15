@@ -1,6 +1,12 @@
 - tapOn:
     id: "tab-accounts"
 - assertVisible: "Accounts"
+- tapOn: "reset-smoke-state"
+- waitForAnimationToEnd
+- assertVisible: "Smoke state reset successfully"
+- tapOn:
+    id: "tab-accounts"
+- assertVisible: "Accounts"
 - runFlow:
     when:
       visible: "New Account"

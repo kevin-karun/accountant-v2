@@ -1,3 +1,4 @@
+- runFlow: create-account.yaml
 - tapOn:
     id: "tab-add"
 - assertVisible: "Add Transaction"
