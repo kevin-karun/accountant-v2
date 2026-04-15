@@ -1,34 +1,34 @@
 # Next Task
 
-## Immediate goal
-Expand test coverage beyond the current smoke flow.
+## Objective
+Build deterministic validation automation for transaction creation.
 
-## Done
-- Smoke flow passes reliably with Option C
-- smoke.yaml is the only orchestrator
-- subflows are pure
-- reset preflight is deterministic
-- create/update/delete use Dev Tools helpers
-- verify uses real UI selectors
+## Goal
+- verify required-field validation blocks invalid submit
+- confirm no transaction is created when validation fails
 
-## Next automation targets
-1. Income transaction flow
-   - create income transaction
-   - verify transaction row appears
-   - verify dashboard reflects it
-   - verify account balance changes correctly
+## Test Coverage
 
-2. Validation flow
-   - attempt save with missing required fields
-   - verify validation errors appear
-   - verify nothing is created
+1. Missing amount
+2. Missing description
+3. Missing both fields
 
-3. Multi-transaction flow
-   - create multiple transactions
-   - verify order in Transactions
-   - verify dashboard recent transactions
-   - verify final balance
+## Assertions
 
-## Rule
-Keep smoke.yaml small and fast.
-Do not bloat smoke with broader scenario coverage.
+- Validation message appears
+- User stays on Add/Edit Transaction screen
+- No new transaction appears in Transactions list
+- Dashboard remains unchanged
+
+## Constraints
+
+- Use existing selectors where possible
+- Add minimal new testIDs only if required
+- Do not modify smoke.yaml
+- Keep flow independent (no chaining with other flows)
+
+## Definition of Done
+
+- Validation flow passes consistently (5/5 runs)
+- No flaky selectors
+- No unintended data created
