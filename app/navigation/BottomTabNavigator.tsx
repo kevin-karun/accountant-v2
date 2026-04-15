@@ -8,6 +8,7 @@ import TransactionsScreen from '../screens/TransactionsScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import AccountsScreen from '../screens/AccountsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import DevTestScreen from '../screens/DevTestScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,8 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'folder' : 'folder-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
+          } else if (route.name === 'Dev Tools') {
+            iconName = focused ? 'hammer' : 'hammer-outline';
           } else {
             iconName = 'help-outline';
           }
@@ -93,6 +96,16 @@ export default function BottomTabNavigator() {
           tabBarAccessibilityLabel: 'tab-settings',
         }}
       />
+      {__DEV__ ? (
+        <Tab.Screen
+          name="Dev Tools"
+          component={DevTestScreen}
+          options={{
+            tabBarButtonTestID: 'tab-dev-tools',
+            tabBarAccessibilityLabel: 'tab-dev-tools',
+          }}
+        />
+      ) : null}
     </Tab.Navigator>
   );
 }

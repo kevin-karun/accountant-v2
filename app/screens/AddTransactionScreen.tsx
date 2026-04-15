@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
-import { createTransaction, updateTransaction, deleteTransaction, getTransactionsByAccount } from '../database/transactionsService';
+import { createTransaction, updateTransaction, deleteTransaction } from '../database/transactionsService';
 import { getAllAccounts } from '../database/accountsService';
 import { Account, Transaction } from '../database/types';
 
@@ -38,9 +38,6 @@ export default function AddTransactionScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
   const params = (route.params as AddTransactionRouteParams | undefined) ?? {};
-  const smokeAccount = accounts.find(account => {
-    return account.name.trim().toLowerCase() === 'smoke account' && account.type === 'bank';
-  });
 
   const handleAccountChange = useCallback((accountId: string) => {
     console.log('AddTransactionScreen account selection changed:', accountId);
@@ -219,64 +216,6 @@ export default function AddTransactionScreen() {
     }
   };
 
-  const handleCreateSmokeExpense = async () => {
-    if (!smokeAccount) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const transactions = await getTransactionsByAccount(smokeAccount.id);
-      const smokeTransactions = transactions.filter((transaction) => {
-        return transaction.type === 'expense'
-          && transaction.amount === 25
-          && (
-            transaction.description === 'Smoke expense'
-            || transaction.description === 'Smoke expense updated'
-          );
-      });
-
-      if (smokeTransactions.length > 0) {
-        const [primaryTransaction, ...duplicateTransactions] = smokeTransactions;
-
-        for (const duplicateTransaction of duplicateTransactions) {
-          await deleteTransaction(duplicateTransaction.id);
-        }
-
-        if (primaryTransaction.description !== 'Smoke expense') {
-          await updateTransaction(primaryTransaction.id, {
-            account_id: primaryTransaction.account_id,
-            type: 'expense',
-            amount: primaryTransaction.amount,
-            description: 'Smoke expense',
-            date: primaryTransaction.date,
-          });
-        }
-
-        setSuccessMessage('Smoke expense already exists');
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-        return;
-      }
-
-      await createTransaction(
-        smokeAccount.id,
-        'expense',
-        25,
-        'Smoke expense',
-        new Date().toISOString().split('T')[0]
-      );
-
-      resetForm();
-      setSuccessMessage('Smoke expense created successfully');
-      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-    } catch (error) {
-      console.error('Failed to create smoke expense:', error);
-      Alert.alert('Error', 'Failed to create smoke expense');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSaveTransaction = async () => {
     console.log('EDIT TRANSACTION SUBMIT PRESSED');
     console.log('AddTransactionScreen edit form state:', {
@@ -326,38 +265,6 @@ export default function AddTransactionScreen() {
     }
   };
 
-  const handleApplySmokeTransactionUpdate = async () => {
-    if (!editingTransactionId) {
-      return;
-    }
-
-    if (description === 'Smoke expense updated') {
-      setSuccessMessage('Smoke expense already updated');
-      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await updateTransaction(editingTransactionId, {
-        account_id: selectedAccountId,
-        type,
-        amount: parseFloat(amount),
-        description: 'Smoke expense updated',
-        date,
-      });
-
-      setDescription('Smoke expense updated');
-      setSuccessMessage('Smoke expense updated successfully');
-      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-    } catch (error) {
-      console.error('Failed to apply smoke transaction update:', error);
-      Alert.alert('Error', 'Failed to apply smoke transaction update');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteTransaction = () => {
     if (!editingTransactionId) {
       return;
@@ -399,28 +306,6 @@ export default function AddTransactionScreen() {
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Transaction Details</Text>
-        {__DEV__ && mode === 'edit' ? (
-          <TouchableOpacity
-            testID="apply-smoke-transaction-update"
-            accessibilityLabel="apply-smoke-transaction-update"
-            style={styles.smokeHelperButton}
-            onPress={handleApplySmokeTransactionUpdate}
-            disabled={loading}
-          >
-            <Text style={styles.smokeHelperButtonText}>Apply Smoke Transaction Update</Text>
-          </TouchableOpacity>
-        ) : null}
-        {__DEV__ && mode === 'create' && smokeAccount ? (
-          <TouchableOpacity
-            testID="create-smoke-expense"
-            accessibilityLabel="create-smoke-expense"
-            style={styles.smokeHelperButton}
-            onPress={handleCreateSmokeExpense}
-            disabled={loading}
-          >
-            <Text style={styles.smokeHelperButtonText}>Create Smoke Expense Transaction</Text>
-          </TouchableOpacity>
-        ) : null}
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Account</Text>
@@ -445,17 +330,6 @@ export default function AddTransactionScreen() {
               ))}
             </Picker>
           </View>
-          {__DEV__ && smokeAccount ? (
-            <TouchableOpacity
-              testID="account-option-smoke-account"
-              accessibilityLabel="account-option-smoke-account"
-              style={styles.smokeHelperButton}
-              onPress={() => handleAccountChange(smokeAccount.id)}
-              disabled={loading}
-            >
-              <Text style={styles.smokeHelperButtonText}>Smoke Account (bank)</Text>
-            </TouchableOpacity>
-          ) : null}
           {errors.account && <Text style={styles.errorText}>{errors.account}</Text>}
         </View>
 

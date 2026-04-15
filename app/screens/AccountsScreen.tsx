@@ -13,7 +13,6 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { createAccount, getAllAccounts, updateAccount, deleteAccount, getAccountBalance } from '../database/accountsService';
-import { getAllTransactions, deleteTransaction } from '../database/transactionsService';
 import { Account } from '../database/types';
 
 export default function AccountsScreen() {
@@ -230,77 +229,6 @@ export default function AccountsScreen() {
     setTouchedFields(prev => ({ ...prev, type: true }));
   };
 
-  const handleCreateSmokeAccount = async () => {
-    const existingSmokeAccount = accounts.find(account => {
-      return account.name.trim().toLowerCase() === 'smoke account' && account.type === 'bank';
-    });
-
-    if (existingSmokeAccount) {
-      setSuccessMessage('Smoke account already exists');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await createAccount('Smoke Account', 'bank', 100);
-      await loadAccounts();
-      setSuccessMessage('Smoke account created successfully');
-    } catch (error) {
-      console.error('Failed to create smoke account:', error);
-      Alert.alert('Error', 'Failed to create smoke account');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetSmokeState = async () => {
-    setLoading(true);
-    try {
-      const allTransactions = await getAllTransactions();
-      const smokeTransactions = allTransactions.filter(transaction => {
-        return transaction.description === 'Smoke expense'
-          || transaction.description === 'Smoke expense updated';
-      });
-
-      for (const transaction of smokeTransactions) {
-        await deleteTransaction(transaction.id);
-      }
-
-      const allAccounts = await getAllAccounts();
-      const smokeAccounts = allAccounts.filter(account => {
-        return account.name.trim() === 'Smoke Account';
-      });
-
-      if (smokeAccounts.length === 0) {
-        await createAccount('Smoke Account', 'bank', 100);
-      } else {
-        const [primarySmokeAccount, ...duplicateSmokeAccounts] = smokeAccounts;
-
-        if (primarySmokeAccount.type !== 'bank' || primarySmokeAccount.opening_balance !== 100) {
-          await updateAccount(
-            primarySmokeAccount.id,
-            'Smoke Account',
-            'bank',
-            100
-          );
-        }
-
-        for (const duplicateSmokeAccount of duplicateSmokeAccounts) {
-          await deleteAccount(duplicateSmokeAccount.id);
-        }
-      }
-
-      resetForm();
-      await loadAccounts();
-      setSuccessMessage('Smoke state reset successfully');
-    } catch (error) {
-      console.error('Failed to reset smoke state:', error);
-      setSuccessMessage('Failed to reset smoke state');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const renderAccountItem = ({ item }: { item: Account }) => (
     <TouchableOpacity
       style={[
@@ -340,42 +268,6 @@ export default function AccountsScreen() {
             </TouchableOpacity>
           )}
         </View>
-        {__DEV__ ? (
-          <View style={styles.automationRow}>
-            <TouchableOpacity
-              testID="reset-smoke-state"
-              accessibilityLabel="reset-smoke-state"
-              style={[styles.automationButton, styles.automationButtonSpacing]}
-              onPress={handleResetSmokeState}
-            >
-              <Text style={styles.automationButtonText}>Reset Smoke State</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              testID="create-smoke-account"
-              accessibilityLabel="create-smoke-account"
-              style={[styles.automationButton, styles.automationButtonSpacing]}
-              onPress={handleCreateSmokeAccount}
-            >
-              <Text style={styles.automationButtonText}>Create Smoke Bank Account</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              testID="account-type-option-bank"
-              accessibilityLabel="account-type-option-bank"
-              style={[styles.automationButton, styles.automationButtonSpacing]}
-              onPress={() => handleAccountTypeChange('bank')}
-            >
-              <Text style={styles.automationButtonText}>Set Bank</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              testID="account-type-option-cash"
-              accessibilityLabel="account-type-option-cash"
-              style={styles.automationButton}
-              onPress={() => handleAccountTypeChange('cash')}
-            >
-              <Text style={styles.automationButtonText}>Set Cash</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
         <TextInput
           accessibilityLabel="account-name-input"
           testID="account-name-input"
