@@ -1,0 +1,22 @@
+- tapOn:
+    id: "tab-accounts"
+- assertVisible: "Accounts"
+- runFlow:
+    when:
+      visible: "New Account"
+    commands:
+      - tapOn: "New Account"
+- assertVisible: "Create New Account"
+- tapOn: "create-smoke-account"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke account created successfully"
+    commands:
+      - assertVisible: "Smoke account created successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke account already exists"
+    commands:
+      - assertVisible: "Smoke account already exists"

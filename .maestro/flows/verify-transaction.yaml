@@ -1,0 +1,5 @@
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "Dashboard"
+- assertVisible:
+    id: "dashboard-recent-row-smoke-expense-updated"

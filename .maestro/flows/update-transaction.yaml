@@ -1,0 +1,25 @@
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- tapOn:
+    id: "transaction-row-smoke-expense"
+- assertVisible: "Edit Transaction"
+- tapOn: "apply-smoke-transaction-update"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke expense updated successfully"
+    commands:
+      - assertVisible: "Smoke expense updated successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke expense already updated"
+    commands:
+      - assertVisible: "Smoke expense already updated"
+
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- assertVisible:
+    id: "transaction-row-smoke-expense-updated"

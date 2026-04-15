@@ -1,0 +1,22 @@
+- tapOn:
+    id: "tab-add"
+- assertVisible: "Add Transaction"
+- tapOn: "create-smoke-expense"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Smoke expense created successfully"
+    commands:
+      - assertVisible: "Smoke expense created successfully"
+
+- runFlow:
+    when:
+      visible: "Smoke expense already exists"
+    commands:
+      - assertVisible: "Smoke expense already exists"
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "transaction-row-smoke-expense"

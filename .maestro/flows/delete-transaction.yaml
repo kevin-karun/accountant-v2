@@ -1,0 +1,28 @@
+- tapOn:
+    id: "dashboard-recent-row-smoke-expense-updated"
+- assertVisible: "Edit Transaction"
+- scrollUntilVisible:
+    element:
+      id: "edit-transaction-delete"
+    direction: DOWN
+- assertVisible:
+    id: "edit-transaction-delete"
+- tapOn:
+    id: "edit-transaction-delete"
+- tapOn: "Delete"
+- assertVisible: "Dashboard"
+
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- assertNotVisible: "Smoke expense updated"
+
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "Dashboard"
+- tapOn:
+    id: "tab-accounts"
+- assertVisible: "Accounts"
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"

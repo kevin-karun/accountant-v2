@@ -13,6 +13,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { createAccount, getAllAccounts, updateAccount, deleteAccount, getAccountBalance } from '../database/accountsService';
+import { getAllTransactions, deleteTransaction } from '../database/transactionsService';
 import { Account } from '../database/types';
 
 export default function AccountsScreen() {
@@ -252,6 +253,54 @@ export default function AccountsScreen() {
     }
   };
 
+  const handleResetSmokeState = async () => {
+    setLoading(true);
+    try {
+      const allTransactions = await getAllTransactions();
+      const smokeTransactions = allTransactions.filter(transaction => {
+        return transaction.description === 'Smoke expense'
+          || transaction.description === 'Smoke expense updated';
+      });
+
+      for (const transaction of smokeTransactions) {
+        await deleteTransaction(transaction.id);
+      }
+
+      const allAccounts = await getAllAccounts();
+      const smokeAccounts = allAccounts.filter(account => {
+        return account.name.trim() === 'Smoke Account';
+      });
+
+      if (smokeAccounts.length === 0) {
+        await createAccount('Smoke Account', 'bank', 100);
+      } else {
+        const [primarySmokeAccount, ...duplicateSmokeAccounts] = smokeAccounts;
+
+        if (primarySmokeAccount.type !== 'bank' || primarySmokeAccount.opening_balance !== 100) {
+          await updateAccount(
+            primarySmokeAccount.id,
+            'Smoke Account',
+            'bank',
+            100
+          );
+        }
+
+        for (const duplicateSmokeAccount of duplicateSmokeAccounts) {
+          await deleteAccount(duplicateSmokeAccount.id);
+        }
+      }
+
+      resetForm();
+      await loadAccounts();
+      setSuccessMessage('Smoke state reset successfully');
+    } catch (error) {
+      console.error('Failed to reset smoke state:', error);
+      setSuccessMessage('Failed to reset smoke state');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderAccountItem = ({ item }: { item: Account }) => (
     <TouchableOpacity
       style={[
@@ -293,6 +342,14 @@ export default function AccountsScreen() {
         </View>
         {__DEV__ ? (
           <View style={styles.automationRow}>
+            <TouchableOpacity
+              testID="reset-smoke-state"
+              accessibilityLabel="reset-smoke-state"
+              style={[styles.automationButton, styles.automationButtonSpacing]}
+              onPress={handleResetSmokeState}
+            >
+              <Text style={styles.automationButtonText}>Reset Smoke State</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               testID="create-smoke-account"
               accessibilityLabel="create-smoke-account"
