@@ -9,8 +9,16 @@ appId: host.exp.Exponent
 - assertVisible: "Dashboard"
 
 - tapOn:
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-reset-smoke-state"
+- waitForAnimationToEnd
+- assertVisible: "Smoke state reset successfully"
+
+- tapOn:
     id: "tab-add"
 - assertVisible: "Add Transaction"
+- tapOn: "dev-select-smoke-account"
 - tapOn:
     id: "add-transaction-description-input"
 - inputText: "Validation empty amount"

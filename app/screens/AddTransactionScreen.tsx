@@ -38,6 +38,9 @@ export default function AddTransactionScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
   const params = (route.params as AddTransactionRouteParams | undefined) ?? {};
+  const smokeAccount = accounts.find((account) => {
+    return account.name.trim() === 'Smoke Account' && account.type === 'bank';
+  });
 
   const handleAccountChange = useCallback((accountId: string) => {
     console.log('AddTransactionScreen account selection changed:', accountId);
@@ -87,12 +90,6 @@ export default function AddTransactionScreen() {
       });
     }
   }, [navigation, params.mode, params.returnTo, params.transaction]);
-
-  useEffect(() => {
-    if (mode === 'create' && selectedAccountId === '' && accounts.length === 1) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, mode, selectedAccountId]);
 
   const resetForm = useCallback(() => {
     setMode('create');
@@ -312,6 +309,17 @@ export default function AddTransactionScreen() {
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Transaction Details</Text>
+        {__DEV__ && mode === 'create' && smokeAccount ? (
+          <TouchableOpacity
+            testID="dev-select-smoke-account"
+            accessibilityLabel="dev-select-smoke-account"
+            style={styles.smokeHelperButton}
+            onPress={() => handleAccountChange(smokeAccount.id)}
+            disabled={loading}
+          >
+            <Text style={styles.smokeHelperButtonText}>Use Smoke Account</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Account</Text>
