@@ -1,0 +1,38 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "app"
+    commands:
+      - tapOn: "app"
+- assertVisible: "Dashboard"
+
+- tapOn:
+    id: "tab-add"
+- assertVisible: "Add Transaction"
+- tapOn:
+    id: "add-transaction-description-input"
+- inputText: "Validation empty amount"
+- waitForAnimationToEnd
+- scrollUntilVisible:
+    element:
+      id: "add-transaction-submit"
+    direction: DOWN
+- assertVisible:
+    id: "add-transaction-submit"
+- tapOn:
+    id: "add-transaction-submit"
+- assertVisible:
+    id: "add-transaction-amount-error"
+- assertVisible: "Add Transaction"
+
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- assertNotVisible: "Validation empty amount"
+
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "Dashboard"
+- assertNotVisible: "Validation empty amount"

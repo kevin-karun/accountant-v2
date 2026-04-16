@@ -88,6 +88,12 @@ export default function AddTransactionScreen() {
     }
   }, [navigation, params.mode, params.returnTo, params.transaction]);
 
+  useEffect(() => {
+    if (mode === 'create' && selectedAccountId === '' && accounts.length === 1) {
+      setSelectedAccountId(accounts[0].id);
+    }
+  }, [accounts, mode, selectedAccountId]);
+
   const resetForm = useCallback(() => {
     setMode('create');
     setEditingTransactionId(null);
@@ -324,9 +330,19 @@ export default function AddTransactionScreen() {
             {accounts.map((account) => (
               <Picker.Item
                 key={account.id}
-                  label={`${account.name} (${account.type.replace('_', ' ')})`}
-                  value={account.id}
-                />
+                label={`${account.name} (${account.type.replace('_', ' ')})`}
+                value={account.id}
+                testID={
+                  account.name === 'Smoke Account' && account.type === 'bank'
+                    ? 'account-option-smoke-account'
+                    : undefined
+                }
+                accessibilityLabel={
+                  account.name === 'Smoke Account' && account.type === 'bank'
+                    ? 'account-option-smoke-account'
+                    : undefined
+                }
+              />
               ))}
             </Picker>
           </View>
@@ -368,7 +384,15 @@ export default function AddTransactionScreen() {
             editable={!loading}
             placeholderTextColor="#999"
           />
-          {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
+          {errors.amount && (
+            <Text
+              testID="add-transaction-amount-error"
+              accessibilityLabel="add-transaction-amount-error"
+              style={styles.errorText}
+            >
+              {errors.amount}
+            </Text>
+          )}
         </View>
 
         <View style={styles.fieldGroup}>
