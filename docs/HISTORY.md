@@ -30,3 +30,13 @@ Key points:
 - Deterministic Dev Tools helper added for smoke income creation
 - Transactions and Dashboard verification use stable selectors
 - Dashboard account balance verification added for Smoke Account
+
+## 2026-04-16 — Empty amount validation automation completed
+
+Added deterministic validation coverage for Add Transaction with empty amount.
+
+Key points:
+- Production auto-select in Add Transaction was removed
+- Dev-only smoke account selection introduced for validation flow
+- Validation now verifies error visibility
+- Invalid submit no longer creates a transaction
