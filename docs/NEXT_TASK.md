@@ -1,34 +1,26 @@
 # Next Task
 
 ## Objective
-Build deterministic validation automation for transaction creation.
+Validation automation — missing description
 
 ## Goal
-- verify required-field validation blocks invalid submit
-- confirm no transaction is created when validation fails
+- Create a deterministic Maestro flow that verifies Add Transaction blocks submission when description is empty.
 
-## Test Coverage
+## Acceptance Criteria
 
-1. Missing amount
-2. Missing description
-3. Missing both fields
-
-## Assertions
-
-- Validation message appears
-- User stays on Add/Edit Transaction screen
-- No new transaction appears in Transactions list
-- Dashboard remains unchanged
+- open Add Transaction with deterministic setup
+- select smoke account through test-only helper
+- enter valid amount
+- leave description blank
+- submit
+- assert description error is visible
+- assert user remains on Add Transaction
+- assert no new transaction appears in Transactions
+- assert Dashboard remains unchanged
 
 ## Constraints
 
-- Use existing selectors where possible
-- Add minimal new testIDs only if required
-- Do not modify smoke.yaml
-- Keep flow independent (no chaining with other flows)
-
-## Definition of Done
-
-- Validation flow passes consistently (5/5 runs)
-- No flaky selectors
-- No unintended data created
+- keep production UX explicit
+- prefer existing selectors and helpers
+- do not modify smoke.yaml
+- keep the flow independent
