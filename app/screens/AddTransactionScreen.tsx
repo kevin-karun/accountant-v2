@@ -8,6 +8,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
@@ -43,7 +45,6 @@ export default function AddTransactionScreen() {
   });
 
   const handleAccountChange = useCallback((accountId: string) => {
-    console.log('AddTransactionScreen account selection changed:', accountId);
     setSelectedAccountId(accountId);
     setSuccessMessage('');
   }, []);
@@ -56,7 +57,7 @@ export default function AddTransactionScreen() {
       console.error('Failed to load accounts:', error);
       Alert.alert('Error', 'Failed to load accounts');
     }
-  }, [selectedAccountId]);
+  }, []);
 
   useEffect(() => {
     loadAccounts();
@@ -64,14 +65,6 @@ export default function AddTransactionScreen() {
 
   useEffect(() => {
     if (params.mode === 'edit' && params.transaction) {
-      console.log('AddTransactionScreen entering edit mode with transaction:', {
-        id: params.transaction.id,
-        account_id: params.transaction.account_id,
-        type: params.transaction.type,
-        amount: params.transaction.amount,
-        description: params.transaction.description,
-        date: params.transaction.date,
-      });
       setMode('edit');
       setEditingTransactionId(params.transaction.id);
       setReturnToScreen(params.returnTo ?? null);
@@ -122,81 +115,40 @@ export default function AddTransactionScreen() {
   useFocusEffect(
     useCallback(() => {
       loadAccounts();
-      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-
-      return () => {
-        if (mode === 'edit') {
-          resetForm();
-        }
-      };
-    }, [loadAccounts, mode, resetForm])
+    }, [loadAccounts])
   );
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!selectedAccountId) {
-      console.log('BLOCKED: missing accountId');
       newErrors.account = 'Please select an account';
     }
 
     if (amount.trim() === '' || isNaN(parseFloat(amount))) {
-      console.log('BLOCKED: missing amount');
       newErrors.amount = 'Amount must be a valid number';
     }
 
     if (!description.trim()) {
-      console.log('BLOCKED: missing description');
       newErrors.description = 'Description is required';
     }
 
     if (!date.trim()) {
-      console.log('BLOCKED: missing date');
       newErrors.date = 'Date is required';
     }
 
     const isValid = Object.keys(newErrors).length === 0;
-
-    console.log('AddTransactionScreen validateForm:', {
-      selectedAccountId,
-      type,
-      amount,
-      description,
-      date,
-      errors: newErrors,
-      isValid,
-    });
 
     setErrors(newErrors);
     return isValid;
   };
 
   const handleCreateTransaction = async () => {
-    console.log('ADD TRANSACTION SUBMIT PRESSED');
-    console.log('SUBMIT BUTTON PRESSED');
-    console.log('FORM STATE:', {
-      accountId: selectedAccountId,
-      type,
-      amount,
-      description,
-    });
-
     const isValid = validateForm();
 
     if (!isValid) {
-      console.log('AddTransactionScreen submit blocked by validation');
       return;
     }
-
-    console.log('PASSING VALIDATION → creating transaction');
-    console.log('AddTransactionScreen submit selectedAccountId:', selectedAccountId);
-    console.log('AddTransactionScreen create payload:', {
-      accountId: selectedAccountId,
-      type,
-      amount: parseFloat(amount),
-      description,
-      date,
-    });
 
     setLoading(true);
     try {
@@ -220,23 +172,11 @@ export default function AddTransactionScreen() {
   };
 
   const handleSaveTransaction = async () => {
-    console.log('EDIT TRANSACTION SUBMIT PRESSED');
-    console.log('AddTransactionScreen edit form state:', {
-      editingTransactionId,
-      accountId: selectedAccountId,
-      type,
-      amount,
-      description,
-      date,
-    });
-
     if (!editingTransactionId) {
-      console.log('AddTransactionScreen edit blocked: missing editingTransactionId');
       return;
     }
 
     if (!validateForm()) {
-      console.log('AddTransactionScreen edit blocked by validation');
       return;
     }
 
@@ -250,15 +190,7 @@ export default function AddTransactionScreen() {
         date,
       };
 
-      console.log('AddTransactionScreen edit payload:', updatePayload);
-
       await updateTransaction(editingTransactionId, updatePayload);
-
-      console.log('AddTransactionScreen updateTransaction completed:', {
-        editingTransactionId,
-      });
-
-      console.log('AddTransactionScreen navigating after edit to:', returnToScreen ?? 'Transactions');
       navigateAfterEdit();
     } catch (error) {
       console.error('Failed to update transaction:', error);
@@ -299,81 +231,179 @@ export default function AddTransactionScreen() {
   };
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.title}>{mode === 'edit' ? 'Edit Transaction' : 'Add Transaction'}</Text>
-      {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>{mode === 'edit' ? 'Edit Transaction' : 'Add Transaction'}</Text>
+      <View style={styles.successMessageContainer}>
+        <Text style={styles.successText}>
+          {successMessage || ' '}
+        </Text>
+      </View>
 
-      <View style={styles.formSection}>
-        <Text style={styles.sectionTitle}>Transaction Details</Text>
-        {__DEV__ && mode === 'create' && smokeAccount ? (
-          <TouchableOpacity
-            testID="dev-select-smoke-account"
-            accessibilityLabel="dev-select-smoke-account"
-            style={styles.smokeHelperButton}
-            onPress={() => handleAccountChange(smokeAccount.id)}
-            disabled={loading}
-          >
-            <Text style={styles.smokeHelperButtonText}>Use Smoke Account</Text>
-          </TouchableOpacity>
-        ) : null}
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>Transaction Details</Text>
+          {__DEV__ && mode === 'create' && smokeAccount ? (
+            <TouchableOpacity
+              testID="dev-select-smoke-account"
+              accessibilityLabel="dev-select-smoke-account"
+              style={styles.smokeHelperButton}
+              onPress={() => handleAccountChange(smokeAccount.id)}
+              disabled={loading}
+            >
+              <Text style={styles.smokeHelperButtonText}>Use Smoke Account</Text>
+            </TouchableOpacity>
+          ) : null}
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Account</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              testID="account-picker"
-              accessibilityLabel="account-picker"
-              style={styles.picker}
-              selectedValue={selectedAccountId}
-              onValueChange={(itemValue) => {
-                handleAccountChange(itemValue);
-              }}
-              enabled={!loading}
-          >
-            <Picker.Item label="Select account" value="" />
-            {accounts.map((account) => (
-              <Picker.Item
-                key={account.id}
-                label={`${account.name} (${account.type.replace('_', ' ')})`}
-                value={account.id}
-                testID={
-                  account.name === 'Smoke Account' && account.type === 'bank'
-                    ? 'account-option-smoke-account'
-                    : undefined
-                }
-                accessibilityLabel={
-                  account.name === 'Smoke Account' && account.type === 'bank'
-                    ? 'account-option-smoke-account'
-                    : undefined
-                }
-              />
-              ))}
-            </Picker>
-          </View>
+          {__DEV__ ? (
+            <View style={styles.devOptionsColumn}>
+              {accounts.map((account) => {
+                const isSelected = selectedAccountId === account.id;
+                return (
+                  <TouchableOpacity
+                    key={account.id}
+                    testID={`dev-account-option-${account.id}`}
+                    accessibilityLabel={`dev-account-option-${account.id}`}
+                    style={[
+                      styles.devOptionButton,
+                      isSelected && styles.devOptionButtonSelected,
+                      loading && styles.buttonDisabled,
+                    ]}
+                    onPress={() => handleAccountChange(account.id)}
+                    disabled={loading}
+                  >
+                    <Text
+                      style={[
+                        styles.devOptionButtonText,
+                        isSelected && styles.devOptionButtonTextSelected,
+                      ]}
+                    >
+                      {`${account.name} (${account.type.replace('_', ' ')})`}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : (
+            <View style={styles.pickerContainer}>
+              <Picker
+                testID="account-picker"
+                accessibilityLabel="account-picker"
+                style={styles.picker}
+                selectedValue={selectedAccountId}
+                onValueChange={(itemValue) => {
+                  handleAccountChange(itemValue);
+                }}
+                enabled={!loading}
+              >
+                <Picker.Item label="Select account" value="" />
+                {accounts.map((account) => (
+                  <Picker.Item
+                    key={account.id}
+                    label={`${account.name} (${account.type.replace('_', ' ')})`}
+                    value={account.id}
+                    testID={
+                      account.name === 'Smoke Account' && account.type === 'bank'
+                        ? 'account-option-smoke-account'
+                        : undefined
+                    }
+                    accessibilityLabel={
+                      account.name === 'Smoke Account' && account.type === 'bank'
+                        ? 'account-option-smoke-account'
+                        : undefined
+                    }
+                  />
+                ))}
+              </Picker>
+            </View>
+          )}
           {errors.account && <Text style={styles.errorText}>{errors.account}</Text>}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Type</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              style={styles.picker}
-              selectedValue={type}
-              onValueChange={(itemValue) => {
-                setType(itemValue as 'income' | 'expense');
-                setSuccessMessage('');
-              }}
-              enabled={!loading}
-            >
-              <Picker.Item label="Income" value="income" />
-              <Picker.Item label="Expense" value="expense" />
-            </Picker>
-          </View>
+          {__DEV__ ? (
+            <View style={styles.devTypeRow}>
+              <TouchableOpacity
+                testID="dev-type-income"
+                accessibilityLabel="dev-type-income"
+                style={[
+                  styles.devTypeChip,
+                  type === 'income' && styles.devTypeChipSelected,
+                  loading && styles.buttonDisabled,
+                ]}
+                onPress={() => {
+                  setType('income');
+                  setSuccessMessage('');
+                }}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    styles.devTypeChipText,
+                    type === 'income' && styles.devTypeChipTextSelected,
+                  ]}
+                >
+                  Income
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="dev-type-expense"
+                accessibilityLabel="dev-type-expense"
+                style={[
+                  styles.devTypeChip,
+                  type === 'expense' && styles.devTypeChipSelected,
+                  loading && styles.buttonDisabled,
+                ]}
+                onPress={() => {
+                  setType('expense');
+                  setSuccessMessage('');
+                }}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    styles.devTypeChipText,
+                    type === 'expense' && styles.devTypeChipTextSelected,
+                  ]}
+                >
+                  Expense
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.pickerContainer}>
+              <Picker
+                style={styles.picker}
+                selectedValue={type}
+                onValueChange={(itemValue) => {
+                  setType(itemValue as 'income' | 'expense');
+                  setSuccessMessage('');
+                }}
+                enabled={!loading}
+              >
+                <Picker.Item label="Income" value="income" />
+                <Picker.Item label="Expense" value="expense" />
+              </Picker>
+            </View>
+          )}
         </View>
+
+        {__DEV__ ? (
+          <View
+            testID="add-form-scroll-anchor"
+            accessibilityLabel="add-form-scroll-anchor"
+            style={styles.devScrollAnchor}
+          />
+        ) : null}
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Amount</Text>
@@ -384,7 +414,6 @@ export default function AddTransactionScreen() {
             placeholder="0.00"
             value={amount}
             onChangeText={(value) => {
-              console.log('ADD TX AMOUNT CHANGED:', value);
               setAmount(value);
               setSuccessMessage('');
             }}
@@ -412,10 +441,6 @@ export default function AddTransactionScreen() {
             placeholder="Transaction description"
             value={description}
             onChangeText={(value) => {
-              if (mode === 'edit') {
-                console.log('EDIT TX DESCRIPTION CHANGED:', value);
-              }
-              console.log('ADD TX DESCRIPTION CHANGED:', value);
               setDescription(value);
               setSuccessMessage('');
             }}
@@ -490,8 +515,9 @@ export default function AddTransactionScreen() {
             )}
           </TouchableOpacity>
         )}
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -501,6 +527,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+    paddingBottom: 96,
   },
   title: {
     fontSize: 28,
@@ -512,6 +539,10 @@ const styles = StyleSheet.create({
     color: '#2f855a',
     fontSize: 14,
     marginBottom: 12,
+  },
+  successMessageContainer: {
+    minHeight: 24,
+    justifyContent: 'center',
   },
   formSection: {
     backgroundColor: '#fff',
@@ -567,6 +598,59 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#555',
+  },
+  devOptionsColumn: {
+    gap: 8,
+  },
+  devOptionButton: {
+    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  devOptionButtonSelected: {
+    borderColor: '#007AFF',
+    backgroundColor: '#eef6ff',
+  },
+  devOptionButtonText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  devOptionButtonTextSelected: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  devTypeRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  devTypeChip: {
+    flex: 1,
+    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  devTypeChipSelected: {
+    borderColor: '#007AFF',
+    backgroundColor: '#eef6ff',
+  },
+  devTypeChipText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  devTypeChipTextSelected: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  devScrollAnchor: {
+    height: 96,
   },
   picker: {
     minHeight: 44,

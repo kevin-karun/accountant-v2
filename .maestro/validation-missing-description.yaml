@@ -1,0 +1,77 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "app"
+    commands:
+      - tapOn: "app"
+- assertVisible: "Dashboard"
+
+- tapOn:
+    id: "tab-dev-tools"
+- assertVisible: "Dev Tools"
+- tapOn: "dev-reset-smoke-state"
+- waitForAnimationToEnd
+- assertVisible: "Smoke state reset successfully"
+
+- tapOn:
+    id: "tab-add"
+- waitForAnimationToEnd
+- assertVisible: "Add Transaction"
+- assertVisible:
+    id: "add-transaction-amount-input"
+- assertVisible:
+    id: "add-transaction-description-input"
+
+- tapOn:
+    id: "dev-select-smoke-account"
+- waitForAnimationToEnd
+- assertVisible: "Add Transaction"
+- assertVisible:
+    id: "add-transaction-amount-input"
+- assertVisible:
+    id: "add-transaction-description-input"
+
+- tapOn:
+    id: "add-transaction-amount-input"
+- inputText: "25"
+
+- assertVisible:
+    id: "add-form-scroll-anchor"
+
+- tapOn:
+    id: "add-form-scroll-anchor"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "add-transaction-submit"
+
+- assertVisible:
+    id: "add-form-scroll-anchor"
+
+- swipe:
+    start: 50%, 78%
+    end: 50%, 42%
+    duration: 250
+
+- waitForAnimationToEnd
+- assertVisible: "Add Transaction"
+- assertVisible:
+    id: "add-transaction-submit"
+- tapOn:
+    id: "add-transaction-submit"
+
+- assertVisible: "Description is required"
+- assertVisible: "Add Transaction"
+
+- tapOn:
+    id: "tab-transactions"
+- assertVisible: "Transactions"
+- assertNotVisible: "Validation missing description"
+
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "Dashboard"
+- assertNotVisible: "Validation missing description"
