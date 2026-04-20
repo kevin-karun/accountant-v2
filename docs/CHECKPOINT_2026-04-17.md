@@ -37,3 +37,8 @@ v0.1-clean-base
 - Added `.github/workflows/ci.yml`
 - Triggers on push and pull_request to `main`
 - Runs `npm ci`, `npm run typecheck`, and `npm run test` in `./app`
+
+## Local Workflow Guards
+- Added versioned git hooks in `.githooks/`
+- Enforced commit prefixes and branch naming locally
+- Pre-push now runs `npm run typecheck` and `npm run test` in `./app`

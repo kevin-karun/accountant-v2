@@ -1,0 +1,16 @@
+#!/bin/sh
+
+message_file="$1"
+first_line=$(sed -n '1p' "$message_file")
+
+case "$first_line" in
+  feat:*|fix:*|chore:*|docs:*|test:*)
+    exit 0
+    ;;
+  *)
+    echo "Invalid commit message prefix."
+    echo "Allowed prefixes: feat:, fix:, chore:, docs:, test:"
+    echo "Example: fix: stabilize Maestro missing-description flow"
+    exit 1
+    ;;
+esac
