@@ -18,3 +18,14 @@ export interface Transaction {
   created_at: string;
   updated_at: string;
 }
+
+export interface Bill {
+  id: string;
+  name: string;
+  amount: number;
+  due_date: string;
+  status: 'pending' | 'paid';
+  paid_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}

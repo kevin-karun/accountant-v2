@@ -24,7 +24,21 @@ export const CREATE_TRANSACTIONS_TABLE = `
   );
 `;
 
+export const CREATE_BILLS_TABLE = `
+  CREATE TABLE IF NOT EXISTS bills (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    amount REAL NOT NULL,
+    due_date TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'paid')),
+    paid_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`;
+
 export const TABLES = {
   ACCOUNTS: 'accounts',
   TRANSACTIONS: 'transactions',
+  BILLS: 'bills',
 } as const;

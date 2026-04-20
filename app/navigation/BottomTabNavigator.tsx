@@ -7,6 +7,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import AccountsScreen from '../screens/AccountsScreen';
+import BillsScreen from '../screens/BillsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import DevTestScreen from '../screens/DevTestScreen';
 
@@ -27,6 +28,8 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
           } else if (route.name === 'Accounts') {
             iconName = focused ? 'folder' : 'folder-outline';
+          } else if (route.name === 'Bills') {
+            iconName = focused ? 'document-text' : 'document-text-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
           } else if (route.name === 'Dev Tools') {
@@ -87,6 +90,10 @@ export default function BottomTabNavigator() {
           tabBarButtonTestID: 'tab-accounts',
           tabBarAccessibilityLabel: 'tab-accounts',
         }}
+      />
+      <Tab.Screen
+        name="Bills"
+        component={BillsScreen}
       />
       <Tab.Screen
         name="Settings"

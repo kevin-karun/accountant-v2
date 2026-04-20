@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getAllAccounts, getAccountBalance } from '../database/accountsService';
+import { getPendingBills } from '../database/billsService';
 import { getAllTransactions } from '../database/transactionsService';
-import { Account, Transaction } from '../database/types';
+import { Account, Bill, Transaction } from '../database/types';
+import { formatDisplayDate } from '../utils/date';
 
 type AccountSummary = {
   account: Account;
@@ -22,6 +24,7 @@ export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const [accountSummaries, setAccountSummaries] = useState<AccountSummary[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [upcomingBills, setUpcomingBills] = useState<Bill[]>([]);
   const [weeklyNetChange, setWeeklyNetChange] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,9 +32,10 @@ export default function DashboardScreen() {
     try {
       setLoading(true);
 
-      const [accounts, transactions] = await Promise.all([
+      const [accounts, transactions, bills] = await Promise.all([
         getAllAccounts(),
         getAllTransactions(),
+        getPendingBills(),
       ]);
 
       const balances = await Promise.all(
@@ -66,6 +70,7 @@ export default function DashboardScreen() {
 
       setAccountSummaries(summaries);
       setRecentTransactions(transactions.slice(0, 3));
+      setUpcomingBills(bills.slice(0, 3));
       setWeeklyNetChange(transactions.length > 0 ? netChangeLast7Days : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
@@ -211,6 +216,35 @@ export default function DashboardScreen() {
               </Text>
             </TouchableOpacity>
           ))
+        )}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Upcoming Bills</Text>
+        {upcomingBills.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No upcoming bills</Text>
+            <Text style={styles.emptyText}>
+              Add a bill in the Bills tab to keep upcoming expenses visible.
+            </Text>
+          </View>
+        ) : (
+          <>
+            {upcomingBills.map((bill) => (
+              <View key={bill.id} style={styles.listItem}>
+                <View style={styles.listItemHeader}>
+                  <Text style={styles.itemTitle}>{bill.name}</Text>
+                  <Text style={[styles.itemAmount, styles.expense]}>
+                    {formatCurrency(bill.amount)}
+                  </Text>
+                </View>
+                <Text style={styles.itemMeta}>
+                  Due {formatDisplayDate(bill.due_date)}
+                </Text>
+              </View>
+            ))}
+            <Text style={styles.helperText}>Manage bills in the Bills tab</Text>
+          </>
         )}
       </View>
 
