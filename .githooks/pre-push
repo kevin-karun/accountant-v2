@@ -1,0 +1,18 @@
+#!/bin/sh
+
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+case "$branch_name" in
+  feat/*|fix/*|chore/*|docs/*|test/*|main)
+    ;;
+  *)
+    echo "Invalid branch name: $branch_name"
+    echo "Allowed branch patterns: feat/*, fix/*, chore/*, docs/*, test/*, main"
+    exit 1
+    ;;
+esac
+
+cd app || exit 1
+
+npm run typecheck || exit 1
+npm run test || exit 1
