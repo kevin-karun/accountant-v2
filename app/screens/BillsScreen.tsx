@@ -248,7 +248,12 @@ export default function BillsScreen() {
       <View style={styles.listSection}>
         <Text style={styles.listTitle}>Upcoming Bills</Text>
         {pendingBills.length === 0 ? (
-          <Text style={styles.emptyText}>No pending bills yet.</Text>
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No upcoming bills yet</Text>
+            <Text style={styles.emptyText}>
+              Create a bill above to keep upcoming expenses visible.
+            </Text>
+          </View>
         ) : (
           pendingBills.map((bill) => (
             <View key={bill.id} style={styles.billCard}>
@@ -272,7 +277,12 @@ export default function BillsScreen() {
       <View style={styles.listSection}>
         <Text style={styles.listTitle}>Paid Bills</Text>
         {paidBills.length === 0 ? (
-          <Text style={styles.emptyText}>No paid bills yet.</Text>
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No paid bills yet</Text>
+            <Text style={styles.emptyText}>
+              Paid bills will appear here once you mark them as paid.
+            </Text>
+          </View>
         ) : (
           paidBills.map((bill) => (
             <View key={bill.id} style={styles.billCard}>
@@ -404,6 +414,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+  emptyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 6,
+  },
   billHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -429,7 +454,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: '#999',
-    fontStyle: 'italic',
+    lineHeight: 20,
   },
   errorText: {
     color: '#dc3545',
