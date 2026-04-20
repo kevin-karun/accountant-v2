@@ -13,6 +13,7 @@ import { getAllAccounts, getAccountBalance } from '../database/accountsService';
 import { getPendingBills } from '../database/billsService';
 import { getAllTransactions } from '../database/transactionsService';
 import { Account, Bill, Transaction } from '../database/types';
+import { formatDisplayDate } from '../utils/date';
 
 type AccountSummary = {
   account: Account;
@@ -238,7 +239,7 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
                 <Text style={styles.itemMeta}>
-                  Due {new Date(bill.due_date).toLocaleDateString()}
+                  Due {formatDisplayDate(bill.due_date)}
                 </Text>
               </View>
             ))}

@@ -14,6 +14,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useFocusEffect } from '@react-navigation/native';
 import { createBill, getAllBills, markBillAsPaid } from '../database/billsService';
 import { Bill } from '../database/types';
+import { formatDisplayDate } from '../utils/date';
 
 function formatStorageDate(date: Date) {
   const year = date.getFullYear();
@@ -24,16 +25,6 @@ function formatStorageDate(date: Date) {
 
 function parseStorageDate(value: string) {
   return new Date(`${value}T00:00:00`);
-}
-
-function formatDisplayDate(value: string) {
-  const [year, month, day] = value.split('-');
-
-  if (!year || !month || !day) {
-    return value;
-  }
-
-  return `${day}-${month}-${year}`;
 }
 
 function sanitizeAmountInput(value: string) {
