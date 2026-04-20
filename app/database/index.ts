@@ -1,5 +1,9 @@
 import * as SQLite from 'expo-sqlite';
-import { CREATE_ACCOUNTS_TABLE, CREATE_TRANSACTIONS_TABLE } from './schema';
+import {
+  CREATE_ACCOUNTS_TABLE,
+  CREATE_BILLS_TABLE,
+  CREATE_TRANSACTIONS_TABLE,
+} from './schema';
 
 const DATABASE_NAME = 'accountant.db';
 
@@ -25,6 +29,7 @@ class DatabaseService {
     try {
       await this.db.execAsync(CREATE_ACCOUNTS_TABLE);
       await this.db.execAsync(CREATE_TRANSACTIONS_TABLE);
+      await this.db.execAsync(CREATE_BILLS_TABLE);
       console.log('Tables created successfully');
     } catch (error) {
       console.error('Failed to create tables:', error);
