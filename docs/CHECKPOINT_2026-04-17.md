@@ -15,7 +15,7 @@
 - Branch: main
 - Status: clean
 - Remote: configured
-- CI: not yet configured
+- CI: GitHub Actions added for npm ci, typecheck, and test in ./app
 - Branch protection: not yet configured
 
 ## Key Files Changed
@@ -26,11 +26,14 @@
 v0.1-clean-base
 
 ## Next Focus
-- CI setup
 - Branch strategy
 - PR workflow
 - Test automation integration (Maestro)
 
 ## Risk Notes
-- No CI → risk of regressions
 - Direct commits to main → future instability
+
+## CI
+- Added `.github/workflows/ci.yml`
+- Triggers on push and pull_request to `main`
+- Runs `npm ci`, `npm run typecheck`, and `npm run test` in `./app`

@@ -315,11 +315,6 @@ export default function AddTransactionScreen() {
                         ? 'account-option-smoke-account'
                         : undefined
                     }
-                    accessibilityLabel={
-                      account.name === 'Smoke Account' && account.type === 'bank'
-                        ? 'account-option-smoke-account'
-                        : undefined
-                    }
                   />
                 ))}
               </Picker>
