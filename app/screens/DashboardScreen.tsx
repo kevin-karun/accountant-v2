@@ -223,7 +223,7 @@ export default function DashboardScreen() {
         <Text style={styles.sectionTitle}>Upcoming Bills</Text>
         {upcomingBills.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>No upcoming bills</Text>
+            <Text style={styles.emptyTitle}>No upcoming bills yet</Text>
             <Text style={styles.emptyText}>
               Add a bill in the Bills tab to keep upcoming expenses visible.
             </Text>
