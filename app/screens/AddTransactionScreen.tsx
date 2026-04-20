@@ -22,7 +22,7 @@ type AddTransactionRouteParams = {
   transaction?: Transaction;
   returnTo?: 'Transactions' | 'Dashboard';
 };
-const x: string = 123
+
 export default function AddTransactionScreen() {
   const scrollViewRef = useRef<ScrollView | null>(null);
   const navigation = useNavigation<any>();
