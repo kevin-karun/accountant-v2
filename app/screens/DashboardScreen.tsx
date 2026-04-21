@@ -20,6 +20,10 @@ type AccountSummary = {
   balance: number;
 };
 
+function sortBillsByDueDate(items: Bill[]) {
+  return [...items].sort((left, right) => left.due_date.localeCompare(right.due_date));
+}
+
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const [accountSummaries, setAccountSummaries] = useState<AccountSummary[]>([]);
@@ -70,7 +74,7 @@ export default function DashboardScreen() {
 
       setAccountSummaries(summaries);
       setRecentTransactions(transactions.slice(0, 3));
-      setUpcomingBills(bills.slice(0, 3));
+      setUpcomingBills(sortBillsByDueDate(bills).slice(0, 3));
       setWeeklyNetChange(transactions.length > 0 ? netChangeLast7Days : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
