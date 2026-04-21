@@ -243,7 +243,7 @@ export default function DashboardScreen() {
                 </Text>
               </View>
             ))}
-            <Text style={styles.helperText}>Manage bills in the Bills tab</Text>
+            <Text style={styles.helperText}>Previewing the next 3 bills. Manage all bills in the Bills tab.</Text>
           </>
         )}
       </View>

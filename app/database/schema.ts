@@ -31,6 +31,8 @@ export const CREATE_BILLS_TABLE = `
     amount REAL NOT NULL,
     due_date TEXT NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('pending', 'paid')),
+    is_recurring INTEGER NOT NULL DEFAULT 0 CHECK (is_recurring IN (0, 1)),
+    recurrence_frequency TEXT CHECK (recurrence_frequency IN ('weekly', 'bi-weekly', 'monthly')),
     paid_at TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL

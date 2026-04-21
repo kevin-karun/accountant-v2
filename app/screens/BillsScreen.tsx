@@ -42,15 +42,22 @@ function isValidAmountValue(value: string) {
   return value.trim() !== '' && !isNaN(parseFloat(value)) && parseFloat(value) > 0;
 }
 
+function normalizeBillName(value: string) {
+  return value.trim().toLowerCase();
+}
+
 export default function BillsScreen() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState(formatStorageDate(new Date()));
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState<'weekly' | 'bi-weekly' | 'monthly'>('monthly');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPossibleDuplicateConfirmation, setShowPossibleDuplicateConfirmation] = useState(false);
 
   const loadBills = useCallback(async () => {
     try {
@@ -76,8 +83,11 @@ export default function BillsScreen() {
     setName('');
     setAmount('');
     setDueDate(formatStorageDate(new Date()));
+    setIsRecurring(false);
+    setRecurrenceFrequency('monthly');
     setShowDatePicker(false);
     setErrors({});
+    setShowPossibleDuplicateConfirmation(false);
   };
 
   const validateForm = () => {
@@ -95,18 +105,21 @@ export default function BillsScreen() {
       nextErrors.dueDate = 'Due date is required';
     }
 
+    if (isRecurring && !recurrenceFrequency) {
+      nextErrors.recurrence = 'Recurrence frequency is required';
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleCreateBill = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
+  const createBillRecord = async () => {
     setLoading(true);
     try {
-      await createBill(name.trim(), parseFloat(amount), dueDate);
+      await createBill(name.trim(), parseFloat(amount), dueDate, {
+        isRecurring,
+        recurrenceFrequency: isRecurring ? recurrenceFrequency : null,
+      });
       resetForm();
       setSuccessMessage('Bill created successfully');
       await loadBills();
@@ -116,6 +129,39 @@ export default function BillsScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateBill = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    const normalizedName = normalizeBillName(name);
+    const parsedAmount = parseFloat(amount);
+    const matchingNameBills = bills.filter((bill) => {
+      return normalizeBillName(bill.name) === normalizedName;
+    });
+
+    const exactDuplicate = matchingNameBills.find((bill) => {
+      return bill.due_date === dueDate && bill.amount === parsedAmount;
+    });
+
+    if (exactDuplicate) {
+      setShowPossibleDuplicateConfirmation(false);
+      setErrors((currentErrors) => ({
+        ...currentErrors,
+        name: 'A bill with this name, amount, and due date already exists',
+      }));
+      return;
+    }
+
+    if (matchingNameBills.length > 0) {
+      setShowPossibleDuplicateConfirmation(true);
+      return;
+    }
+
+    setShowPossibleDuplicateConfirmation(false);
+    await createBillRecord();
   };
 
   const handleMarkPaid = async (billId: string) => {
@@ -146,6 +192,21 @@ export default function BillsScreen() {
   };
 
   const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
+  const formatRecurrence = (bill: Bill) => {
+    if (!bill.is_recurring || !bill.recurrence_frequency) {
+      return 'One-time bill';
+    }
+
+    if (bill.recurrence_frequency === 'weekly') {
+      return 'Recurring · Weekly';
+    }
+
+    if (bill.recurrence_frequency === 'bi-weekly') {
+      return 'Recurring · Bi-weekly';
+    }
+
+    return 'Recurring · Monthly';
+  };
   const pendingBills = bills.filter((bill) => bill.status === 'pending');
   const paidBills = bills.filter((bill) => bill.status === 'paid');
 
@@ -163,6 +224,7 @@ export default function BillsScreen() {
           onChangeText={(value) => {
             setName(value);
             setSuccessMessage('');
+            setShowPossibleDuplicateConfirmation(false);
           }}
           editable={!loading}
           placeholderTextColor="#999"
@@ -179,6 +241,7 @@ export default function BillsScreen() {
 
             setAmount(sanitizedValue);
             setSuccessMessage('');
+            setShowPossibleDuplicateConfirmation(false);
 
             setErrors((currentErrors) => {
               if (isValidAmountValue(sanitizedValue)) {
@@ -207,6 +270,7 @@ export default function BillsScreen() {
           onPress={() => {
             setShowDatePicker(true);
             setSuccessMessage('');
+            setShowPossibleDuplicateConfirmation(false);
           }}
           disabled={loading}
         >
@@ -229,6 +293,166 @@ export default function BillsScreen() {
                 <Text style={styles.datePickerDoneButtonText}>Done</Text>
               </TouchableOpacity>
             ) : null}
+          </View>
+        ) : null}
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Recurrence</Text>
+          <View style={styles.frequencyRow}>
+            <TouchableOpacity
+              style={[
+                styles.frequencyButton,
+                !isRecurring && styles.frequencyButtonSelected,
+              ]}
+              onPress={() => {
+                setIsRecurring(false);
+                setSuccessMessage('');
+                setShowPossibleDuplicateConfirmation(false);
+                setErrors((currentErrors) => {
+                  const { recurrence: _recurrenceError, ...remainingErrors } = currentErrors;
+                  return remainingErrors;
+                });
+              }}
+              disabled={loading}
+            >
+              <Text
+                style={[
+                  styles.frequencyButtonText,
+                  !isRecurring && styles.frequencyButtonTextSelected,
+                ]}
+              >
+                One-time
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.frequencyButton,
+                isRecurring && styles.frequencyButtonSelected,
+              ]}
+              onPress={() => {
+                setIsRecurring(true);
+                setSuccessMessage('');
+                setShowPossibleDuplicateConfirmation(false);
+              }}
+              disabled={loading}
+            >
+              <Text
+                style={[
+                  styles.frequencyButtonText,
+                  isRecurring && styles.frequencyButtonTextSelected,
+                ]}
+              >
+                Recurring
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {isRecurring ? (
+            <View style={styles.frequencyRow}>
+              <TouchableOpacity
+                style={[
+                  styles.frequencyButton,
+                  recurrenceFrequency === 'weekly' && styles.frequencyButtonSelected,
+                ]}
+                onPress={() => {
+                  setRecurrenceFrequency('weekly');
+                  setSuccessMessage('');
+                  setShowPossibleDuplicateConfirmation(false);
+                  setErrors((currentErrors) => {
+                    const { recurrence: _recurrenceError, ...remainingErrors } = currentErrors;
+                    return remainingErrors;
+                  });
+                }}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    styles.frequencyButtonText,
+                    recurrenceFrequency === 'weekly' && styles.frequencyButtonTextSelected,
+                  ]}
+                >
+                  Weekly
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.frequencyButton,
+                  recurrenceFrequency === 'bi-weekly' && styles.frequencyButtonSelected,
+                ]}
+                onPress={() => {
+                  setRecurrenceFrequency('bi-weekly');
+                  setSuccessMessage('');
+                  setShowPossibleDuplicateConfirmation(false);
+                  setErrors((currentErrors) => {
+                    const { recurrence: _recurrenceError, ...remainingErrors } = currentErrors;
+                    return remainingErrors;
+                  });
+                }}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    styles.frequencyButtonText,
+                    recurrenceFrequency === 'bi-weekly' && styles.frequencyButtonTextSelected,
+                  ]}
+                >
+                  Bi-weekly
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.frequencyButton,
+                  recurrenceFrequency === 'monthly' && styles.frequencyButtonSelected,
+                ]}
+                onPress={() => {
+                  setRecurrenceFrequency('monthly');
+                  setSuccessMessage('');
+                  setShowPossibleDuplicateConfirmation(false);
+                  setErrors((currentErrors) => {
+                    const { recurrence: _recurrenceError, ...remainingErrors } = currentErrors;
+                    return remainingErrors;
+                  });
+                }}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    styles.frequencyButtonText,
+                    recurrenceFrequency === 'monthly' && styles.frequencyButtonTextSelected,
+                  ]}
+                >
+                  Monthly
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+          {errors.recurrence ? <Text style={styles.errorText}>{errors.recurrence}</Text> : null}
+        </View>
+
+        {showPossibleDuplicateConfirmation ? (
+          <View style={styles.duplicateWarningCard}>
+            <Text style={styles.duplicateWarningTitle}>Possible duplicate bill</Text>
+            <Text style={styles.duplicateWarningText}>
+              A bill with this name already exists. You can still create this bill if it is intentional.
+            </Text>
+            <View style={styles.duplicateWarningActions}>
+              <TouchableOpacity
+                style={[styles.secondaryButton, styles.duplicateWarningButton, loading && styles.buttonDisabled]}
+                onPress={() => setShowPossibleDuplicateConfirmation(false)}
+                disabled={loading}
+              >
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.duplicateWarningButton, loading && styles.buttonDisabled]}
+                onPress={() => {
+                  setShowPossibleDuplicateConfirmation(false);
+                  void createBillRecord();
+                }}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>Create Anyway</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ) : null}
 
@@ -262,6 +486,7 @@ export default function BillsScreen() {
                 <Text style={styles.billAmount}>{formatCurrency(bill.amount)}</Text>
               </View>
               <Text style={styles.billMeta}>Due {formatDisplayDate(bill.due_date)}</Text>
+              <Text style={styles.billMeta}>{formatRecurrence(bill)}</Text>
               <TouchableOpacity
                 style={[styles.secondaryButton, loading && styles.buttonDisabled]}
                 onPress={() => handleMarkPaid(bill.id)}
@@ -290,6 +515,7 @@ export default function BillsScreen() {
                 <Text style={styles.billName}>{bill.name}</Text>
                 <Text style={styles.billAmount}>{formatCurrency(bill.amount)}</Text>
               </View>
+              <Text style={styles.billMeta}>{formatRecurrence(bill)}</Text>
               <Text style={styles.billMeta}>
                 Paid {bill.paid_at ? formatDisplayDate(formatStorageDate(new Date(bill.paid_at))) : 'recently'}
               </Text>
@@ -331,6 +557,15 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 14,
   },
+  fieldGroup: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -365,6 +600,59 @@ const styles = StyleSheet.create({
     color: '#0066cc',
     fontSize: 15,
     fontWeight: '600',
+  },
+  frequencyRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  frequencyButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#c8c8c8',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  frequencyButtonSelected: {
+    borderColor: '#0066cc',
+    backgroundColor: '#eaf3ff',
+  },
+  frequencyButtonText: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  frequencyButtonTextSelected: {
+    color: '#0066cc',
+  },
+  duplicateWarningCard: {
+    backgroundColor: '#fff7e6',
+    borderWidth: 1,
+    borderColor: '#f5c26b',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 12,
+  },
+  duplicateWarningTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#8a5a00',
+    marginBottom: 6,
+  },
+  duplicateWarningText: {
+    fontSize: 14,
+    color: '#7a652f',
+    lineHeight: 20,
+  },
+  duplicateWarningActions: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 8,
+  },
+  duplicateWarningButton: {
+    flex: 1,
+    marginTop: 0,
   },
   button: {
     backgroundColor: '#0066cc',
