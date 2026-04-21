@@ -9,13 +9,21 @@ function generateBillId(): string {
 export async function createBill(
   name: string,
   amount: number,
-  dueDate: string
+  dueDate: string,
+  options?: {
+    isRecurring?: boolean;
+    recurrenceFrequency?: 'weekly' | 'bi-weekly' | 'monthly' | null;
+  }
 ): Promise<Bill> {
   const db = databaseService.getDatabase();
   const now = new Date().toISOString();
   const id = generateBillId();
 
   const paidAt: string | null = null;
+  const isRecurring = options?.isRecurring ?? false;
+  const recurrenceFrequency = isRecurring
+    ? options?.recurrenceFrequency ?? null
+    : null;
 
   const bill: Bill = {
     id,
@@ -23,15 +31,39 @@ export async function createBill(
     amount,
     due_date: dueDate,
     status: 'pending',
+    is_recurring: isRecurring,
+    recurrence_frequency: recurrenceFrequency,
     paid_at: paidAt,
     created_at: now,
     updated_at: now,
   };
 
   await db.runAsync(
-    `INSERT INTO bills (id, name, amount, due_date, status, paid_at, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [id, name, amount, dueDate, bill.status, paidAt, now, now]
+    `INSERT INTO bills (
+      id,
+      name,
+      amount,
+      due_date,
+      status,
+      is_recurring,
+      recurrence_frequency,
+      paid_at,
+      created_at,
+      updated_at
+    )
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id,
+      name,
+      amount,
+      dueDate,
+      bill.status,
+      isRecurring ? 1 : 0,
+      recurrenceFrequency,
+      paidAt,
+      now,
+      now,
+    ]
   );
 
   return bill;
@@ -47,7 +79,11 @@ export async function getAllBills(): Promise<Bill[]> {
        created_at DESC`
   );
 
-  return (result || []) as Bill[];
+  return ((result || []) as any[]).map((bill) => ({
+    ...bill,
+    is_recurring: Boolean(bill.is_recurring),
+    recurrence_frequency: bill.recurrence_frequency ?? null,
+  })) as Bill[];
 }
 
 export async function getPendingBills(): Promise<Bill[]> {
@@ -58,7 +94,11 @@ export async function getPendingBills(): Promise<Bill[]> {
      ORDER BY due_date ASC, created_at ASC`
   );
 
-  return (result || []) as Bill[];
+  return ((result || []) as any[]).map((bill) => ({
+    ...bill,
+    is_recurring: Boolean(bill.is_recurring),
+    recurrence_frequency: bill.recurrence_frequency ?? null,
+  })) as Bill[];
 }
 
 export async function markBillAsPaid(id: string): Promise<void> {

@@ -25,6 +25,8 @@ export interface Bill {
   amount: number;
   due_date: string;
   status: 'pending' | 'paid';
+  is_recurring: boolean;
+  recurrence_frequency?: 'weekly' | 'bi-weekly' | 'monthly' | null;
   paid_at?: string | null;
   created_at: string;
   updated_at: string;
