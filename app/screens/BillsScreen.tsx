@@ -46,6 +46,18 @@ function normalizeBillName(value: string) {
   return value.trim().toLowerCase();
 }
 
+function sortBillsByDueDate(items: Bill[]) {
+  return [...items].sort((left, right) => left.due_date.localeCompare(right.due_date));
+}
+
+function getDayDifference(firstDate: string, secondDate: string) {
+  const first = parseStorageDate(firstDate).getTime();
+  const second = parseStorageDate(secondDate).getTime();
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+  return Math.abs(first - second) / millisecondsPerDay;
+}
+
 export default function BillsScreen() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [name, setName] = useState('');
@@ -141,6 +153,9 @@ export default function BillsScreen() {
     const matchingNameBills = bills.filter((bill) => {
       return normalizeBillName(bill.name) === normalizedName;
     });
+    const nearbyMatchingNameBills = matchingNameBills.filter((bill) => {
+      return getDayDifference(bill.due_date, dueDate) <= 3;
+    });
 
     const exactDuplicate = matchingNameBills.find((bill) => {
       return bill.due_date === dueDate && bill.amount === parsedAmount;
@@ -155,7 +170,7 @@ export default function BillsScreen() {
       return;
     }
 
-    if (matchingNameBills.length > 0) {
+    if (nearbyMatchingNameBills.length > 0) {
       setShowPossibleDuplicateConfirmation(true);
       return;
     }
@@ -207,8 +222,12 @@ export default function BillsScreen() {
 
     return 'Recurring · Monthly';
   };
-  const pendingBills = bills.filter((bill) => bill.status === 'pending');
-  const paidBills = bills.filter((bill) => bill.status === 'paid');
+  const pendingBills = sortBillsByDueDate(
+    bills.filter((bill) => bill.status === 'pending')
+  );
+  const paidBills = sortBillsByDueDate(
+    bills.filter((bill) => bill.status === 'paid')
+  );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -432,7 +451,7 @@ export default function BillsScreen() {
           <View style={styles.duplicateWarningCard}>
             <Text style={styles.duplicateWarningTitle}>Possible duplicate bill</Text>
             <Text style={styles.duplicateWarningText}>
-              A bill with this name already exists. You can still create this bill if it is intentional.
+              A bill with this name and a nearby due date already exists. You can still create this bill if it is intentional.
             </Text>
             <View style={styles.duplicateWarningActions}>
               <TouchableOpacity
@@ -457,9 +476,9 @@ export default function BillsScreen() {
         ) : null}
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, (loading || showPossibleDuplicateConfirmation) && styles.buttonDisabled]}
           onPress={handleCreateBill}
-          disabled={loading}
+          disabled={loading || showPossibleDuplicateConfirmation}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
